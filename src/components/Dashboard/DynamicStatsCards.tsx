@@ -3,7 +3,7 @@ import { StatsCard } from "../StatsCard";
 
 export function DynamicStatsCards() {
   return (
-     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Saldo Total"
           value="R$ 0,00"
@@ -33,13 +33,13 @@ export function DynamicStatsCards() {
           color="bg-gradient-to-br from-blue-500 to-blue-600"
         />
         
-        <StatsCard
+        {/* <StatsCard
           title="Categorias"
           value="0"
           change="--"
           icon={BarChart3}
           color="bg-gradient-to-br from-purple-500 to-purple-600"
-        />
+        /> */}
       </div>
   );
 }

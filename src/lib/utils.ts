@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function transformToCurrency(value: number) {
@@ -10,4 +10,32 @@ export function transformToCurrency(value: number) {
     style: "currency",
     currency: "BRL",
   }).format(value / 100);
+}
+
+export function transformToCents(value: string) {
+  const cleaned = value
+    .replace(/\s/g, "")
+    .replace("R$", "")
+    .replace(/\./g, "")
+    .replace(",", ".");
+
+  const parsed = parseFloat(cleaned);
+
+  return Math.round(parsed * 100);
+}
+
+export function validationInputAmount(value: string) {
+  const cleaned = value.replace(/\D/g, "");
+
+  const numeric = cleaned === "" ? "0" : cleaned;
+
+  const centavos = parseInt(numeric, 10);
+
+  const formatted = (centavos / 100).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+  });
+
+  return formatted;
 }

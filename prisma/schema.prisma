@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,16 +8,20 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String          @unique
+  email         String    @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  AccountBanks AccountBanks[]
+  Categories   Categories[]
+  Transactions Transactions[]
+  Transfers    Transfers[]
 }
 
 model Account {
@@ -33,12 +36,12 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@id([provider, providerAccountId])
 }
 
@@ -47,15 +50,110 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@id([identifier, token])
+}
+
+enum BANKS {
+  BANCO_DO_BRASIL
+  ITAU
+  ITI
+  PICPAY
+  NUBANK
+  BRADESCO
+  SANTANDER
+  CAIXA
+  INTER
+  C6
+  PAGSEGURO
+  MERCADOPAGO
+  STONE
+  GETNET
+  SAFRA
+  BANRISUL
+  SICOOB
+  SICREDI
+  OUTROS
+}
+
+enum Type {
+  INCOME
+  EXPENSE
+}
+
+model AccountBanks {
+  id            String         @id @default(cuid())
+  bank          BANKS
+  description   String
+  amount        Int
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  deletedAt     DateTime?
+  Transactions  Transactions[]
+  TransfersFrom Transfers[]    @relation("SourceBank")
+  TransfersTo   Transfers[]    @relation("DestinationBank")
+
+  @@map("account_banks")
+}
+
+model Categories {
+  id    String @id @default(cuid())
+  name  String
+  type  Type   @default(EXPENSE)
+  color String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  deletedAt    DateTime?
+  Transactions Transactions[]
+
+  @@map("categories")
+}
+
+model Transactions {
+  id          String   @id @default(cuid())
+  date        DateTime
+  type        Type     @default(EXPENSE)
+  description String?
+  amount      Int
+
+  accountBankId String
+  bank          AccountBanks @relation(fields: [accountBankId], references: [id])
+  categoryId    String
+  category      Categories   @relation(fields: [categoryId], references: [id])
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  deletedAt DateTime?
+
+  @@map("transactions")
+}
+
+model Transfers {
+  id     String   @id @default(cuid())
+  date   DateTime
+  amount Int
+
+  sourceBankId      String
+  sourceBank        AccountBanks @relation(name: "SourceBank", fields: [sourceBankId], references: [id])
+  destinationBankId String
+  destinationBank   AccountBanks @relation(name: "DestinationBank", fields: [destinationBankId], references: [id])
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  deletedAt DateTime?
+
+  @@map("transfers")
 }

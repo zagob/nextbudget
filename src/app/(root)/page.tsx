@@ -1,8 +1,10 @@
 import { AccountBanks } from "@/components/Dashboard/AccountBanks";
+import { Categories } from "@/components/Dashboard/Categories";
 import { DateStats } from "@/components/Dashboard/DateStats";
 import { DynamicStatsCards } from "@/components/Dashboard/DynamicStatsCards";
 import { FilterDate } from "@/components/Dashboard/FilterDate";
 import { DashboardHeader } from "@/components/Dashboard/Header";
+import { HistoricStatsCard } from "@/components/Dashboard/HistoricStatsCard";
 import { LatestTransactions } from "@/components/Dashboard/LatestTransactions";
 import { DateNavigation } from "@/components/DateNavigation";
 import { LoadingCard } from "@/components/LoadingCard";
@@ -27,6 +29,16 @@ export default function Home() {
 
           <Suspense fallback={<LoadingCard />}>
             <LatestTransactions />
+          </Suspense>
+        </div>
+
+        <div className="space-y-6">
+           <Suspense fallback={<LoadingCard />}>
+            <HistoricStatsCard transactions={[]} />
+          </Suspense>
+
+          <Suspense fallback={<LoadingCard />}>
+            <Categories />
           </Suspense>
         </div>
       </div>
