@@ -2,9 +2,20 @@ import type { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaClient } from "@prisma/client";
-// import { prisma } from "./prisma";
 
-export const prisma = new PrismaClient()
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: ["error"], // ou ["query", "error"] se quiser logar queries também
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),

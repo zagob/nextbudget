@@ -139,37 +139,28 @@ export function DialogCreateTransaction({
                         >
                           <ToggleGroupItem
                             value="EXPENSE"
-                            // className={cn("", {
-                            //   "pointer-events-none": field.value === "EXPENSE",
-                            // })}
+                            className={cn("", {
+                              "pointer-events-none": field.value === "EXPENSE",
+                            })}
                           >
                             Saída
                           </ToggleGroupItem>
                           <ToggleGroupItem
                             value="INCOME"
-                            // className={cn("", {
-                            //   "pointer-events-none": field.value === "INCOME",
-                            // })}
+                            className={cn("", {
+                              "pointer-events-none": field.value === "INCOME",
+                            })}
                           >
                             Entrada
                           </ToggleGroupItem>
-                          {/* <Button asChild className="">
-                            <ToggleGroupItem value="EXPENSE">
-                              Saída
-                            </ToggleGroupItem>
-                          </Button>
-                          <Button asChild variant="primary" className="">
-                            <ToggleGroupItem value="INCOME">
-                              Entrada
-                            </ToggleGroupItem>
-                          </Button> */}
                         </ToggleGroup>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
                   control={form.control}
                   name="date"
                   render={({ field }) => (
@@ -181,7 +172,7 @@ export function DialogCreateTransaction({
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "w-[240px] pl-3 text-left font-normal",
+                                "w-full pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -224,7 +215,7 @@ export function DialogCreateTransaction({
                           defaultValue={field.value}
                           onValueChange={field.onChange}
                         >
-                          <SelectTrigger id="name-bank" className="w-[200px]">
+                          <SelectTrigger id="name-bank" className="w-fit">
                             <SelectValue placeholder="Selecione um banco" />
                           </SelectTrigger>
                           <SelectContent>
@@ -240,6 +231,7 @@ export function DialogCreateTransaction({
                     </FormItem>
                   )}
                 />
+                </div>
               </div>
               <div className="grid gap-3">
                 <FormField
