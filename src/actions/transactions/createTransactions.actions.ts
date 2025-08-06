@@ -14,17 +14,25 @@ export async function createTransactions({
     const userId = await getUserAuth();
 
     await prisma.transactions.create({
-      data: {}
+      data: {
+        accountBankId,
+        amount,
+        categoryId,
+        date,
+        description,
+        type,
+        userId,
+      }
     });
     return {
       success: true,
-      message: "Categories created successfully",
+      message: "transactions created successfully",
     };
   } catch (error) {
     return {
       error,
       success: false,
-      message: (error as Error).message || "Failed to create categories",
+      message: (error as Error).message || "Failed to create transactions",
     };
   }
 }
