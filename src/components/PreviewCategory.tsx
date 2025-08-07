@@ -1,0 +1,34 @@
+import { Tag, TrendingDown, TrendingUp } from "lucide-react";
+
+import { memo } from "react";
+import { CategoryType } from "@/@types/categories";
+
+export const PreviewItem = memo(({ category }: { category: Omit<CategoryType, 'id'> }) => {
+  const isIncome = category.type === "INCOME";
+
+  return (
+    <div className="flex items-center justify-between p-3 bg-neutral-800/30 rounded-lg hover:bg-neutral-800/50 transition-all duration-200 border border-neutral-700/30 hover:border-neutral-600/50">
+      <div className="flex items-center gap-3">
+        <div
+          className="p-2 rounded-lg"
+          style={{ backgroundColor: `${category.color}20` }}
+        >
+          <Tag className="w-4 h-4" style={{ color: category.color }} />
+        </div>
+        <div className="flex-1">
+          <h4 className="text-sm font-medium text-white">{category.name}</h4>
+          <div className="flex items-center gap-2 text-xs text-neutral-400">
+            {isIncome ? (
+              <TrendingUp className="w-3 h-3 text-green-400" />
+            ) : (
+              <TrendingDown className="w-3 h-3 text-red-400" />
+            )}
+            <span>{isIncome ? "Receita" : "Despesa"}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+PreviewItem.displayName = "PreviewItem";

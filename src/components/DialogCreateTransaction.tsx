@@ -13,14 +13,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Input } from "./ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import { BANKS, Type } from "@prisma/client";
+import { Type } from "@prisma/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import {
@@ -42,9 +35,12 @@ import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { ptBR } from "date-fns/locale";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
+import { CategoriasSelect } from "./CategoriesSelect";
+import { DialogCreateCategory } from "./DialogCreateCategory";
+import { BanksSelect } from "./BanksSelect";
 
 const formSchema = z.object({
-  date: z.date(),
+  date: z.date("Date must be a valid date"),
   type: z.enum(Type),
   accountBankId: z.string(),
   categoryId: z.string(),
@@ -77,6 +73,12 @@ export function DialogCreateTransaction({
     },
   });
 
+  const valueAccountBank = form.watch("accountBankId");
+  const valueCategory = form.watch("categoryId");
+
+  const isDisabledButtonCreate =
+    valueAccountBank.length === 0 || valueCategory.length === 0;
+
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: FormData) => {
       const amount = transformToCents(data.amount);
@@ -104,11 +106,13 @@ export function DialogCreateTransaction({
     event.target.value = formatted;
   }
 
+  console.log("dialog transactions");
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button size="sm" variant="primary">
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="size-4 mr-1" />
           Nova Transação
         </Button>
       </DialogTrigger>
@@ -161,123 +165,154 @@ export function DialogCreateTransaction({
                 />
                 <div className="grid grid-cols-2 gap-3">
                   <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data da transação</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP", {
-                                  locale: ptBR,
-                                })
-                              ) : (
-                                <span>Selecione uma data</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            locale={ptBR}
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("2010-01-01")
-                            }
-                            captionLayout="dropdown"
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Data da transação</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP", {
+                                    locale: ptBR,
+                                  })
+                                ) : (
+                                  <span>Selecione uma data</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              locale={ptBR}
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date > new Date() ||
+                                date < new Date("2010-01-01")
+                              }
+                              captionLayout="dropdown"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="accountBankId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Banco</FormLabel>
+                        <FormControl>
+                          <BanksSelect
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
                           />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                          {/* <Select
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger id="name-bank" className="w-fit">
+                              <SelectValue placeholder="Selecione um banco" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.values(BANKS).map((bank) => (
+                                <SelectItem key={bank} value={bank}>
+                                  {bank}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select> */}
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
-                  name="accountBankId"
+                  name="categoryId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Banco</FormLabel>
+                      <FormLabel>Categoria</FormLabel>
                       <FormControl>
-                        <Select
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <SelectTrigger id="name-bank" className="w-fit">
-                            <SelectValue placeholder="Selecione um banco" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.values(BANKS).map((bank) => (
-                              <SelectItem key={bank} value={bank}>
-                                {bank}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="flex items-center">
+                          <CategoriasSelect
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            placeholder="Selecione uma categoria"
+                          />
+                          <DialogCreateCategory type={type} />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                <div className="grid sm:grid-cols-[auto_0.6fr] gap-3">
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Descrição</FormLabel>
+                        <FormControl>
+                          <Input
+                            id="description"
+                            placeholder="Ex: Mercado"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Valor</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="0,00"
+                            onInput={handleValidationInput}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
-              <div className="grid gap-3">
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Descrição</FormLabel>
-                      <FormControl>
-                        <Input
-                          id="description"
-                          placeholder="Ex: Poupança"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid gap-3">
-                <FormField
-                  control={form.control}
-                  name="amount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Valor Inicial</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="0,00"
-                          onInput={handleValidationInput}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+
               <DialogFooter>
                 <DialogClose asChild>
                   <Button disabled={isPending} variant="outline">
                     Cancel
                   </Button>
                 </DialogClose>
-                <Button disabled={isPending} variant="secondary" type="submit">
+                <Button
+                  disabled={isPending || isDisabledButtonCreate}
+                  variant="secondary"
+                  type="submit"
+                  className="disabled:cursor-not-allowed"
+                >
                   {isPending ? "Criando..." : "Criar"}
                 </Button>
               </DialogFooter>

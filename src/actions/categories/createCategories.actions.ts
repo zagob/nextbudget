@@ -1,3 +1,5 @@
+"use server"
+
 import { prisma } from "@/lib/prisma";
 import { getUserAuth } from "../users/getUserAuth.actions";
 import { CreateCategoriesType } from "@/@types/categories";

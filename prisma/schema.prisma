@@ -130,7 +130,7 @@ model Transactions {
   accountBankId String
   bank          AccountBanks @relation(fields: [accountBankId], references: [id])
   categoryId    String
-  category      Categories   @relation(fields: [categoryId], references: [id])
+  category      Categories   @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
   user   User   @relation(fields: [userId], references: [id])
   userId String

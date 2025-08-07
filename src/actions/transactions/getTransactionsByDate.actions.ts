@@ -1,26 +1,24 @@
+"use server";
+
 import { prisma } from "@/lib/prisma";
 import { getUserAuth } from "../users/getUserAuth.actions";
 import { endOfMonth, parseISO, startOfMonth } from "date-fns";
 
-interface DeleteTransactionsProps {
-  transactionId: string;
-  date: string;
+interface GetTransactionsProps {
+  date: Date;
 }
 
-export async function deleteTransactions({
-  transactionId,
-  date,
-}: DeleteTransactionsProps) {
+export async function getTransactionsByDate({ date }: GetTransactionsProps) {
   try {
     const userId = await getUserAuth();
 
-    const parsedDate = parseISO(`${date}-01`);
-    const firstDayMonth = startOfMonth(parsedDate);
-    const lastDayMonth = endOfMonth(parsedDate);
+    // const parsedDate = parseISO(`${date}-01`);
+
+    const firstDayMonth = startOfMonth(date);
+    const lastDayMonth = endOfMonth(date);
 
     const transactions = await prisma.transactions.findMany({
       where: {
-        id: transactionId,
         userId,
         AND: {
           date: {
@@ -29,6 +27,24 @@ export async function deleteTransactions({
           },
         },
       },
+      select: {
+        id: true,
+        amount: true,
+        date: true,
+        description: true,
+        type: true,
+        category: {
+          select: {
+            name: true,
+            color: true,
+          }
+        },
+        bank: {
+          select: {
+            bank: true
+          }
+        }
+      }
     });
     return {
       success: true,

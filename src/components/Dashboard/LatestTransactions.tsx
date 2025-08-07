@@ -6,100 +6,105 @@ import { Button } from "../ui/button";
 
 import { useQuery } from "@tanstack/react-query";
 
-// import { getTransactions } from "@/actions/transactions.actions";
 import { transformToCurrency } from "@/lib/utils";
 import {
   Receipt,
   TrendingUp,
   TrendingDown,
-  Plus,
   Eye,
   Calendar,
   Clock,
-  ArrowUpRight,
-  ArrowDownRight,
   Filter,
   Search,
 } from "lucide-react";
-import { useDateStore } from "@/store/date";
 import { LoadingCard } from "../LoadingCard";
 import { DialogCreateTransaction } from "../DialogCreateTransaction";
+import { getTransactionsByDate } from "@/actions/transactions/getTransactionsByDate.actions";
+import { TransactionType } from "@/@types/transactions";
+import useDateStoreFormatted from "@/hooks/useDateStoreFormatted";
 
-// Componente de item de transação moderna
-const ModernTransactionItem = memo(({ transaction }: { transaction: any }) => {
-  const isIncome = transaction.type === "INCOME";
+const TransactionItem = memo(
+  ({ transaction }: { transaction: TransactionType }) => {
+    const isIncome = transaction.type === "INCOME";
 
-  return (
-    <div className="flex items-center justify-between p-3 bg-neutral-800/30 rounded-lg hover:bg-neutral-800/50 transition-all duration-200 border border-neutral-700/30 hover:border-neutral-600/50">
-      <div className="flex items-center gap-3">
-        <div
-          className={`p-2 rounded-lg ${
-            isIncome ? "bg-green-500/20" : "bg-red-500/20"
-          }`}
-        >
-          {isIncome ? (
-            <TrendingUp className="w-4 h-4 text-green-400" />
-          ) : (
-            <TrendingDown className="w-4 h-4 text-red-400" />
-          )}
-        </div>
-        <div className="flex-1">
-          <h4 className="text-sm font-medium text-white truncate max-w-[150px]">
-            {transaction.description || "Transação"}
-          </h4>
-          <div className="flex items-center gap-2 text-xs text-neutral-400">
-            <Calendar className="w-3 h-3" />
-            <span>
-              {new Date(transaction.date).toLocaleDateString("pt-BR")}
-            </span>
-            <Clock className="w-3 h-3 ml-2" />
-            <span>
-              {new Date(transaction.date).toLocaleTimeString("pt-BR", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <div className="text-right">
-          <p
-            className={`text-sm font-semibold ${
-              isIncome ? "text-green-400" : "text-red-400"
+    return (
+      <div className="flex items-center justify-between p-3 bg-neutral-800/30 rounded-lg hover:bg-neutral-800/50 transition-all duration-200 border border-neutral-700/30 hover:border-neutral-600/50">
+        <div className="flex items-center gap-3">
+          <div
+            className={`p-2 rounded-lg ${
+              isIncome ? "bg-green-500/20" : "bg-red-500/20"
             }`}
           >
-            {isIncome ? "+" : "-"} {transformToCurrency(transaction.value)}
-          </p>
-          <p className="text-xs text-neutral-500">
-            {transaction.category?.name || "Sem categoria"}
-          </p>
+            {isIncome ? (
+              <TrendingUp className="w-4 h-4 text-green-400" />
+            ) : (
+              <TrendingDown className="w-4 h-4 text-red-400" />
+            )}
+          </div>
+          <div className="flex-1">
+            <h4 className="text-sm font-medium text-white truncate max-w-[150px]">
+              {transaction.description || "Transação"}
+            </h4>
+            <div className="flex items-center gap-2 text-xs text-neutral-400">
+              <Calendar className="w-3 h-3" />
+              <span>
+                {new Date(transaction.date).toLocaleDateString("pt-BR")}
+              </span>
+              <Clock className="w-3 h-3 ml-2" />
+              <span>
+                {new Date(transaction.date).toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+          </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 hover:bg-white/10"
-        >
-          <Eye className="w-4 h-4" />
-        </Button>
-      </div>
-    </div>
-  );
-});
 
-ModernTransactionItem.displayName = "ModernTransactionItem";
+        <div className="flex items-center gap-2">
+          <div className="text-right">
+            <p
+              className={`text-sm font-semibold ${
+                isIncome ? "text-green-400" : "text-red-400"
+              }`}
+            >
+              {isIncome ? "+" : "-"} {transformToCurrency(transaction.amount)}
+            </p>
+            <p className="text-xs text-neutral-500">
+              {transaction.category?.name || "Sem categoria"} •{" "}
+              {transaction.bank?.bank || "Sem banco"}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 hover:bg-white/10"
+          >
+            <Eye className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+);
+
+TransactionItem.displayName = "TransactionItem";
 
 export const LatestTransactions = () => {
-  const date = useDateStore((state) => state.date);
+  const date = useDateStoreFormatted();
 
   const { data: transactions, isPending } = useQuery({
     queryKey: ["transactions", date],
-    queryFn: async () => null,
+    queryFn: async () =>
+      getTransactionsByDate({
+        date: new Date(date),
+      }),
   });
 
-  const recentTransactions = transactions?.transactions?.slice(0, 5) || [];
-
+  const recentTransactions = transactions?.data?.slice(0, 5) || [];
+  console.log({
+    transactions,
+  });
   if (isPending) {
     return (
       <Card className="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border-neutral-700/50">
@@ -157,26 +162,25 @@ export const LatestTransactions = () => {
         ) : (
           <>
             <div className="space-y-2">
-              {recentTransactions.map((transaction: any) => (
-                <ModernTransactionItem
+              {recentTransactions.map((transaction) => (
+                <TransactionItem
                   key={transaction.id}
                   transaction={transaction}
                 />
               ))}
             </div>
 
-            {transactions?.transactions &&
-              transactions.transactions.length > 5 && (
-                <div className="pt-3 border-t border-neutral-700/50">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full text-neutral-400 hover:text-white"
-                  >
-                    Ver todas as transações ({transactions.transactions.length})
-                  </Button>
-                </div>
-              )}
+            {transactions?.data && transactions.data.length > 5 && (
+              <div className="pt-3 border-t border-neutral-700/50">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-neutral-400 hover:text-white"
+                >
+                  Ver todas as transações ({transactions.data.length})
+                </Button>
+              </div>
+            )}
           </>
         )}
       </CardContent>

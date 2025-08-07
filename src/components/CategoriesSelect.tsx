@@ -1,0 +1,66 @@
+"use client";
+
+import { SelectProps } from "@radix-ui/react-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { getCategories } from "@/actions/categories/getCategories.actions";
+import { Skeleton } from "./ui/skeleton";
+
+interface CategoriasSelectProps extends SelectProps {
+  id?: string;
+  placeholder?: string;
+  classNameTrigger?: string;
+}
+
+export function CategoriasSelect({
+  id,
+  placeholder,
+  classNameTrigger,
+  ...props
+}: CategoriasSelectProps) {
+  const { data: categories, isPending } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => await getCategories(),
+  });
+
+  /**
+   * Verificar se o array de categorias está vazio
+   */
+  const isEmptyCategories = categories?.data?.length === 0;
+
+  return (
+    <Select {...props}>
+      <SelectTrigger
+        disabled={isPending || isEmptyCategories}
+        id={id}
+        className={cn(isPending ? "w-1/2" : "w-fit", classNameTrigger)}
+      >
+        {isPending ? (
+          <Skeleton className="h-2.5 w-full rounded" />
+        ) : (
+          <SelectValue
+            placeholder={
+              isEmptyCategories
+                ? "Nenhuma Categoria"
+                : placeholder || "Selecione uma categoria"
+            }
+          />
+        )}
+      </SelectTrigger>
+      <SelectContent>
+        {categories?.data?.map((category) => (
+          <SelectItem key={category.id} value={category.id}>
+            {category.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}

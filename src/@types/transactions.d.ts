@@ -1,4 +1,19 @@
-import { Type } from "@prisma/client";
+import { BANKS, Type } from "@prisma/client";
+
+type TransactionType = {
+  id: string;
+  type: Type;
+  date: Date;
+  description: string | null;
+  amount: number;
+  bank: {
+    bank: BANKS;
+  };
+  category: {
+    name: string;
+    color: string;
+  };
+};
 
 type CreateTransactionsType = {
   date: Date;
