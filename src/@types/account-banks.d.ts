@@ -2,7 +2,7 @@ import { BANKS } from "@prisma/client";
 
 export type AccountBankType = {
   id: string;
-  bank: string;
+  bank: BANKS;
   description: string;
   amount: number;
 };

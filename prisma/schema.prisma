@@ -92,6 +92,7 @@ enum Type {
 
 model AccountBanks {
   id            String         @id @default(cuid())
+  disabled      Boolean?       @default(false)
   bank          BANKS
   description   String
   amount        Int

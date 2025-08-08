@@ -26,7 +26,7 @@ import {
 } from "./ui/form";
 import { cn, transformToCents, validationInputAmount } from "@/lib/utils";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createTransactions } from "@/actions/transactions/createTransactions.actions";
 import { useDateStore } from "@/store/date";
@@ -38,6 +38,7 @@ import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { CategoriasSelect } from "./CategoriesSelect";
 import { DialogCreateCategory } from "./DialogCreateCategory";
 import { BanksSelect } from "./BanksSelect";
+import useDateStoreFormatted from "@/hooks/useDateStoreFormatted";
 
 const formSchema = z.object({
   date: z.date("Date must be a valid date"),
@@ -58,6 +59,8 @@ interface DialogCreateTransactionProps {
 export function DialogCreateTransaction({
   type = "EXPENSE",
 }: DialogCreateTransactionProps) {
+  const queryClient = useQueryClient();
+  const dateFormatted = useDateStoreFormatted();
   const date = useDateStore((state) => state.date);
 
   const form = useForm<FormData>({
@@ -89,7 +92,12 @@ export function DialogCreateTransaction({
     },
     onSuccess: () => {
       form.reset();
-      toast.success("Transação criada com sucesso");
+      toast.success("Transação criada com sucesso", {
+        richColors: true,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["transactions", dateFormatted],
+      });
     },
     onError: () => {
       toast.error("Erro ao criar transação, tente novamente");

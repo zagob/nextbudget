@@ -2,9 +2,10 @@ import { getBankIcon, getGradientClass } from "@/constants/banks";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { memo } from "react";
-import { Eye, EyeOff, Settings, TrendingUp } from "lucide-react";
+import { Eye, EyeOff, TrendingUp } from "lucide-react";
 import { transformToCurrency } from "@/lib/utils";
 import { AccountBankType } from "@/@types/account-banks";
+import { DialogUpdateAccountBank } from "../DialogUpdateAccountBank";
 
 interface AccountBankProps {
   account: AccountBankType;
@@ -14,6 +15,8 @@ interface AccountBankProps {
 
 export const AccountBank = memo(
   ({ account, isVisible, onToggleVisibility }: AccountBankProps) => {
+
+    
     return (
       <Card
         className={`bg-gradient-to-br ${getGradientClass(
@@ -72,13 +75,15 @@ export const AccountBank = memo(
                 <TrendingUp className="w-3 h-3 text-green-400" />
                 <span className="text-xs text-green-400">+2.5%</span>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 hover:bg-white/10"
-              >
-                <Settings className="w-3 h-3" />
-              </Button>
+              <DialogUpdateAccountBank
+                accountBankId={account.id}
+                defaultValues={{
+                  amount: transformToCurrency(account.amount),
+                  bank: account.bank,
+                  description: account.description,
+                }}
+              />
+              
             </div>
           </div>
         </CardContent>

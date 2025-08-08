@@ -15,91 +15,111 @@ export async function updateTransactions({
 }: UpdateTransactionsProps) {
   try {
     const userId = await getUserAuth();
+    const { accountBankId, amount, categoryId, date, description, type } = data;
 
-    const transaction = await prisma.transactions.findUnique({
+    const oldTransaction = await prisma.transactions.findUnique({
       where: {
         id: transactionId,
         userId,
       },
     });
 
-    if (!transaction) {
+    if (!oldTransaction) {
       throw new Error("Transaction not found");
     }
 
-    const accountBank = await prisma.accountBanks.findUnique({
+    const oldAccountBank = await prisma.accountBanks.findUnique({
       where: {
-        id: transaction.accountBankId,
+        id: oldTransaction.accountBankId,
         userId,
       },
     });
 
-    if (!accountBank) {
+    if (!oldAccountBank) {
       throw new Error("Account bank not found");
     }
 
-    const newAccount = await prisma.accountBanks.findUnique({
+    const newAccountBank = await prisma.accountBanks.findUnique({
       where: {
-        id: data.accountBankId,
+        id: accountBankId,
         userId,
       },
     });
 
-    if (!newAccount) {
+    if (!newAccountBank) {
       throw new Error("New account bank not found");
     }
 
     const revertAmount =
-      transaction.type === "EXPENSE"
-        ? accountBank.amount + transaction.amount
-        : accountBank.amount - transaction.amount;
+      oldTransaction.type === "EXPENSE"
+        ? oldAccountBank.amount + oldTransaction.amount
+        : oldAccountBank.amount - oldTransaction.amount;
 
     const applyAmount =
-      transaction.type === "EXPENSE"
-        ? accountBank.amount - transaction.amount
-        : accountBank.amount + transaction.amount;
+      oldTransaction.type === "EXPENSE"
+        ? newAccountBank.amount - amount
+        : newAccountBank.amount + amount;
 
-    // await prisma.$transaction(
-    //   [
-    //     transaction.accountBankId !== data.accountBankId
-    //       ? prisma.accountBanks.update({
-    //           where: {
-    //             id: transaction.accountBankId,
-    //             userId,
-    //           },
-    //           data: {
-    //             amount: revertAmount,
-    //           },
-    //         })
-    //       : prisma.accountBanks.update({
-    //           where: {
-    //             id: transaction.accountBankId,
-    //             userId,
-    //           },
-    //           data: {
-    //             amount: applyAmount,
-    //           },
-    //         }),
-    //     transaction.accountBankId !== data.accountBankId
-    //       ? prisma.accountBanks.update({
-    //           where: {
-    //             id: data.accountBankId,
-    //             userId,
-    //           },
-    //           data: {
-    //             amount: applyAmount,
-    //           },
-    //         })
-    //       : undefined,
-    //     prisma.transactions.update({
-    //       where: {
-    //         id: transactionId,
-    //         userId,
-    //       },
-    //       data,
-    //     }),
-    //   ].filter(Boolean)
-    // );
+    await prisma.$transaction(async (tx) => {
+      if (oldAccountBank.id !== accountBankId) {
+        await tx.accountBanks.update({
+          where: {
+            id: oldTransaction.accountBankId,
+            userId,
+          },
+          data: {
+            amount: revertAmount,
+          },
+        });
+
+        await tx.accountBanks.update({
+          where: {
+            id: accountBankId,
+            userId,
+          },
+          data: {
+            amount: applyAmount,
+          },
+        });
+      } else {
+        let ajustAmount = oldAccountBank.amount;
+
+        // remove efeito antigo
+        ajustAmount =
+          oldTransaction.type === "EXPENSE"
+            ? ajustAmount + oldTransaction.amount
+            : ajustAmount - oldTransaction.amount;
+
+        // aplica efeito novo
+        ajustAmount =
+          type === "EXPENSE" ? ajustAmount - amount : ajustAmount + amount;
+
+        await tx.accountBanks.update({
+          where: {
+            id: accountBankId,
+            userId,
+          },
+          data: {
+            amount: ajustAmount,
+          },
+        });
+      }
+
+      await tx.transactions.update({
+        where: {
+          id: transactionId,
+          userId,
+        },
+        data: {
+          accountBankId,
+          amount,
+          categoryId,
+          date,
+          description,
+          type,
+        },
+      });
+    });
 
     return {
       success: true,

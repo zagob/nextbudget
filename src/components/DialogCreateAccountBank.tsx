@@ -34,7 +34,7 @@ import {
 import { transformToCents, validationInputAmount } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { createBanks } from "@/actions/banks/createBanks.actions";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -47,7 +47,8 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export function DialogAccountBank() {
+export function DialogCreateAccountBank() {
+  const queryClient = useQueryClient()
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,8 +58,6 @@ export function DialogAccountBank() {
     },
   });
 
-  console.log(form.formState.errors);
-
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: FormData) => {
       const amount = transformToCents(data.amount);
@@ -66,10 +65,15 @@ export function DialogAccountBank() {
     },
     onSuccess: () => {
       form.reset();
-      toast.success("Banco criado com sucesso");
+      toast.success("Banco criado com sucesso", {
+        richColors: true,
+      });
+      queryClient.invalidateQueries({ queryKey: ["account-banks"] });
     },
     onError: () => {
-      toast.error("Erro ao criar banco, tente novamente");
+      toast.error("Erro ao criar banco, tente novamente", {
+        richColors: true
+      });
     },
   });
 

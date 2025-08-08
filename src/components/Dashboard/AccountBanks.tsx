@@ -13,7 +13,7 @@ import { LoadingCard } from "../LoadingCard";
 import { useSession } from "next-auth/react";
 import { getBanks } from "@/actions/banks/getBanks.actions";
 import { AccountBank } from "./AccountBank";
-import { DialogAccountBank } from "../DialogAccountBank";
+import { DialogCreateAccountBank } from "../DialogCreateAccountBank";
 
 
 
@@ -108,7 +108,7 @@ export const AccountBanks = () => {
                 Total: {transformToCurrency(banks?.data?.totalAmount ?? 0)}
               </span>
             </div>
-            <DialogAccountBank />
+            <DialogCreateAccountBank />
             
           </div>
         </div>

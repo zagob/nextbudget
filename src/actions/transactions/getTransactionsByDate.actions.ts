@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { getUserAuth } from "../users/getUserAuth.actions";
-import { endOfMonth, parseISO, startOfMonth } from "date-fns";
 
 interface GetTransactionsProps {
   date: Date;
@@ -12,19 +11,18 @@ export async function getTransactionsByDate({ date }: GetTransactionsProps) {
   try {
     const userId = await getUserAuth();
 
-    // const parsedDate = parseISO(`${date}-01`);
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
 
-    const firstDayMonth = startOfMonth(date);
-    const lastDayMonth = endOfMonth(date);
+    const firstDayUTC = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
+    const lastDayUTC = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
 
     const transactions = await prisma.transactions.findMany({
       where: {
         userId,
-        AND: {
-          date: {
-            gte: firstDayMonth,
-            lte: lastDayMonth,
-          },
+        date: {
+          gte: firstDayUTC,
+          lte: lastDayUTC,
         },
       },
       select: {
@@ -37,15 +35,16 @@ export async function getTransactionsByDate({ date }: GetTransactionsProps) {
           select: {
             name: true,
             color: true,
-          }
+          },
         },
         bank: {
           select: {
-            bank: true
-          }
-        }
-      }
+            bank: true,
+          },
+        },
+      },
     });
+
     return {
       success: true,
       message: "Transactions geted successfully",
