@@ -2,7 +2,6 @@ import { AccountBanks } from "@/components/Dashboard/AccountBanks";
 import { Categories } from "@/components/Dashboard/Categories";
 import { DateStats } from "@/components/Dashboard/DateStats";
 import { DynamicStatsCards } from "@/components/Dashboard/DynamicStatsCards";
-import { FilterDate } from "@/components/Dashboard/FilterDate";
 import { DashboardHeader } from "@/components/Dashboard/Header";
 import { HistoricStatsCard } from "@/components/Dashboard/HistoricStatsCard";
 import { LatestTransactions } from "@/components/Dashboard/LatestTransactions";
@@ -34,7 +33,7 @@ export default function Home() {
 
         <div className="space-y-6">
            <Suspense fallback={<LoadingCard />}>
-            <HistoricStatsCard transactions={[]} />
+            <HistoricStatsCard />
           </Suspense>
 
           <Suspense fallback={<LoadingCard />}>

@@ -27,15 +27,15 @@ export const DateStats = () => {
 
 const transactions = undefined
 
-  if (false) {
-    return (
-      <div className="flex items-center gap-4">
-        <div className="w-24 h-8 bg-neutral-800/50 rounded-md animate-pulse"></div>
-        <div className="w-32 h-8 bg-neutral-800/50 rounded-md animate-pulse"></div>
-        <div className="w-28 h-8 bg-neutral-800/50 rounded-md animate-pulse"></div>
-      </div>
-    );
-  }
+  // if (false) {
+  //   return (
+  //     <div className="flex items-center gap-4">
+  //       <div className="w-24 h-8 bg-neutral-800/50 rounded-md animate-pulse"></div>
+  //       <div className="w-32 h-8 bg-neutral-800/50 rounded-md animate-pulse"></div>
+  //       <div className="w-28 h-8 bg-neutral-800/50 rounded-md animate-pulse"></div>
+  //     </div>
+  //   );
+  // }
 
   const totalTransactions = transactions?.transactions?.length || 0;
   const daysInMonth = getDaysInMonth(date);

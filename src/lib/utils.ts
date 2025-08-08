@@ -39,3 +39,7 @@ export function validationInputAmount(value: string) {
 
   return formatted;
 }
+
+export function formatAmountNegative(value: string) {
+  return value.replace("-", "- ");
+}
