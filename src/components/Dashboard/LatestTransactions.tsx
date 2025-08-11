@@ -16,12 +16,15 @@ import {
   Clock,
   Filter,
   Search,
+  Pencil,
 } from "lucide-react";
 import { LoadingCard } from "../LoadingCard";
 import { DialogCreateTransaction } from "../DialogCreateTransaction";
 import { getTransactionsByDate } from "@/actions/transactions/getTransactionsByDate.actions";
 import { TransactionType } from "@/@types/transactions";
-import useDateStoreFormatted from "@/hooks/useDateStoreFormatted";
+import { useDateFormatted } from "@/store/date";
+import { DialogCreateTransactionCopy } from "../DialogCreateTransactionCopy";
+import { DialogUpdateTransaction } from "../DialogUpdateTransaction";
 
 const TransactionItem = memo(
   ({ transaction }: { transaction: TransactionType }) => {
@@ -72,16 +75,13 @@ const TransactionItem = memo(
             </p>
             <p className="text-xs text-neutral-500">
               {transaction.category?.name || "Sem categoria"} •{" "}
-              {transaction.bank?.bank || "Sem banco"}
+              {transaction.bank || "Sem banco"}
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 hover:bg-white/10"
-          >
-            <Eye className="w-4 h-4" />
-          </Button>
+          <div className="border rounded">
+            <DialogUpdateTransaction defaultValues={transaction} />
+            <DialogCreateTransactionCopy defaultValues={transaction} />
+          </div>
         </div>
       </div>
     );
@@ -91,7 +91,7 @@ const TransactionItem = memo(
 TransactionItem.displayName = "TransactionItem";
 
 export const LatestTransactions = () => {
-  const date = useDateStoreFormatted();
+  const date = useDateFormatted();
 
   const { data: transactions, isPending } = useQuery({
     queryKey: ["transactions", date],
@@ -102,9 +102,7 @@ export const LatestTransactions = () => {
   });
 
   const recentTransactions = transactions?.data?.slice(0, 5) || [];
-  console.log({
-    transactions,
-  });
+
   if (isPending) {
     return (
       <Card className="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border-neutral-700/50">

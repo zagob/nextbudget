@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Shield, Zap } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -17,24 +17,26 @@ export const DashboardHeader = memo(() => {
   const isLoading = status === "loading";
   const isAuthenticated = status === "authenticated";
 
+  // Função otimizada para atualizar o tempo
+  const updateTime = useCallback(() => {
+    const now = new Date();
+    setCurrentTime(
+      now.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    );
+  }, []);
+
   useEffect(() => {
     setCurrentYear(format(new Date(), "yyyy"));
 
-    const updateTime = () => {
-      const now = new Date();
-      setCurrentTime(
-        now.toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      );
-    };
-
     updateTime();
-    const interval = setInterval(updateTime, 1000);
+    // Reduzir de 1 segundo para 30 segundos para melhorar performance
+    const interval = setInterval(updateTime, 30000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [updateTime]);
 
   return (
     <Card className="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border-neutral-700/50">

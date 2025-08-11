@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent} from "@/components/ui/card";
 import { TrendingUp, TrendingDown, DollarSign, Activity } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getTransactionsByDate } from "@/actions/transactions/getTransactionsByDate.actions";

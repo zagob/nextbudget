@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 
@@ -13,7 +14,7 @@ import { CategoryItem } from "../CategoryItem";
 
 // Componente de item de categoria moderna
 
-export const Categories = () => {
+export const Categories = memo(() => {
   const date = useDateStore((state) => state.date);
 
   const { data: categories, isPending } = useQuery({
@@ -25,9 +26,12 @@ export const Categories = () => {
     categories,
   });
 
-  const dataCategories = categories?.data || [];
-
-  const recentCategories = dataCategories.slice(0, 6) || [];
+  // Memoizar dados processados
+  const { dataCategories, recentCategories } = useMemo(() => {
+    const dataCategories = categories?.data || [];
+    const recentCategories = dataCategories.slice(0, 6) || [];
+    return { dataCategories, recentCategories };
+  }, [categories?.data]);
 
   if (isPending) {
     return (
@@ -85,10 +89,6 @@ export const Categories = () => {
               Nenhuma categoria encontrada
             </p>
             <DialogCreateCategory />
-            {/* <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4 mr-1" />
-              Nova Categoria
-            </Button> */}
           </div>
         ) : (
           <>
@@ -129,9 +129,9 @@ export const Categories = () => {
                     <span className="text-xs text-neutral-400">Despesas</span>
                   </div>
                   <p className="text-sm font-medium text-white">
-                    {categories?.data?.filter(
-                      (category) => category.type === "EXPENSE"
-                    ).length || 0}
+                    {categories?.data
+                      ?.filter((category) => category.type === "EXPENSE")
+                      .flatMap((c) => c.Transactions).length || 0}
                   </p>
                 </div>
               </div>
@@ -141,4 +141,6 @@ export const Categories = () => {
       </CardContent>
     </Card>
   );
-};
+});
+
+Categories.displayName = "Categories";

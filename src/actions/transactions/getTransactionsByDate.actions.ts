@@ -37,6 +37,8 @@ export async function getTransactionsByDate({ date }: GetTransactionsProps) {
             color: true,
           },
         },
+        accountBankId: true,
+        categoryId: true,
         bank: {
           select: {
             bank: true,
@@ -45,10 +47,24 @@ export async function getTransactionsByDate({ date }: GetTransactionsProps) {
       },
     });
 
+    const transactionsFormatted = transactions.map((transaction) => {
+      return {
+        id: transaction.id,
+        accountBankId: transaction.accountBankId,
+        categoryId: transaction.categoryId,
+        amount: transaction.amount,
+        date: transaction.date,
+        description: transaction.description,
+        type: transaction.type,
+        category: transaction.category,
+        bank: transaction.bank.bank,
+      };
+    })
+
     return {
       success: true,
       message: "Transactions geted successfully",
-      data: transactions,
+      data: transactionsFormatted,
     };
   } catch (error) {
     return {

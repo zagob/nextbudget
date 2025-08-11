@@ -4,30 +4,18 @@ import { format, getDaysInMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar, DollarSign, Activity, Target } from "lucide-react";
 import { transformToCurrency } from "@/lib/utils";
-import { useDateStore } from "@/store/date";
-import { getTransactionsByDate } from "@/actions/transactions/getTransactionsByDate.actions";
-import useDateStoreFormatted from "@/hooks/useDateStoreFormatted";
-import { useQuery } from "@tanstack/react-query";
-import { getResumeByDateTransactions } from "@/actions/transactions/getResumeByDateTransactions.actions";
+import { useDateOnly, useDateFormatted } from "@/store/date";
+import { useTransactionsData } from "@/hooks/useTransactionsData";
 
 export const DateStats = () => {
-  const date = useDateStore((state) => state.date);
-  const dateFormatted = useDateStoreFormatted();
+  const date = useDateOnly();
+  const dateFormatted = useDateFormatted();
 
-  const { data: transactions, isPending } = useQuery({
-    queryKey: ["transactions", dateFormatted],
-    queryFn: async () =>
-      await getTransactionsByDate({ date: new Date(dateFormatted) }),
-  });
-
-  const { data: resume, isPending: isPendingResume } = useQuery({
-    queryKey: ["resumeByDateTransactions", dateFormatted],
-    queryFn: async () => getResumeByDateTransactions({ date }),
-  });
+  const { transactions, resume, isPendingTransactions } = useTransactionsData(date);
 
   const balance = resume?.data?.totalAmount || 0;
 
-  if (isPending || isPendingResume) {
+  if (isPendingTransactions) {
     return (
       <div className="flex items-center gap-4">
         <div className="w-24 h-8 bg-neutral-800/50 rounded-md animate-pulse"></div>

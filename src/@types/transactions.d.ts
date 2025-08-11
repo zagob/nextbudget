@@ -6,9 +6,9 @@ type TransactionType = {
   date: Date;
   description: string | null;
   amount: number;
-  bank: {
-    bank: BANKS;
-  };
+  bank: BANKS;
+  accountBankId: string;
+  categoryId: string;
   category: {
     name: string;
     color: string;

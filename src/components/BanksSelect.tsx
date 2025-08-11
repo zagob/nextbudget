@@ -37,7 +37,7 @@ export function BanksSelect({
       <SelectTrigger
         disabled={isPending || isEmptyBanks}
         id={id}
-        className={cn(isPending ? "w-1/2" : "w-fit", classNameTrigger)}
+        className={cn("w-full", classNameTrigger)}
       >
         {isPending ? (
           <Skeleton className="h-2.5 w-full rounded" />

@@ -12,6 +12,13 @@ type CategoryType = {
   totalAmountCategory: number;
 };
 
+type UpdateCategoryType = {
+  id: string
+  name: string;
+  type: Type;
+  color: string;
+};
+
 type CreateCategoriesType = {
   name: string;
   type: Type;

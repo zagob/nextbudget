@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,9 +8,8 @@ import { getTransactionsByDate } from "@/actions/transactions/getTransactionsByD
 import { transformToCurrency } from "@/lib/utils";
 import { LoadingCard } from "@/components/LoadingCard";
 import { DialogCreateTransaction } from "@/components/DialogCreateTransaction";
-import { TransactionType } from "@/@types/transactions";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 
 interface TransactionChartProps {
@@ -31,7 +31,7 @@ interface DayData {
   balance: number;
 }
 
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: any}) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -49,12 +49,12 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-const DayTooltip = ({ active, payload, label }: any) => {
+const DayTooltip = ({ active, payload, label }: { active?: boolean; payload?: any; label?: string}) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-neutral-800 border border-neutral-700 p-3 rounded-lg shadow-lg">
         <p className="text-white font-medium">Dia {label}</p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry: { dataKey: string; color: string; value: number; }, index: number) => (
           <p key={index} className="text-neutral-300">
             <span style={{ color: entry.color }}>
               {entry.dataKey === 'income' ? 'Receitas' : 
@@ -77,6 +77,57 @@ export function TransactionChart({ selectedDate }: TransactionChartProps) {
     queryFn: async () => getTransactionsByDate({ date: selectedDate }),
   });
 
+  const transactionsList = transactions?.data || [];
+
+  // Memoizar dados das categorias
+  const categoryData: CategoryData[] = useMemo(() => {
+    return Object.values(
+      transactionsList.reduce((acc, transaction) => {
+        const key = `${transaction.category.name}-${transaction.type}`;
+        if (!acc[key]) {
+          acc[key] = {
+            name: transaction.category.name,
+            value: 0,
+            color: transaction.category.color,
+            type: transaction.type,
+            count: 0,
+          };
+        }
+        acc[key].value += transaction.amount;
+        acc[key].count += 1;
+        return acc;
+      }, {} as Record<string, CategoryData>)
+    ).sort((a, b) => b.value - a.value);
+  }, [transactionsList]);
+
+  // Memoizar dados por dia
+  const dayData: DayData[] = useMemo(() => {
+    return Object.values(
+      transactionsList.reduce((acc, transaction) => {
+        const date = new Date(transaction.date);
+        const day = date.getDate().toString();
+        
+        if (!acc[day]) {
+          acc[day] = {
+            day,
+            income: 0,
+            expense: 0,
+            balance: 0,
+          };
+        }
+        
+        if (transaction.type === 'INCOME') {
+          acc[day].income += transaction.amount;
+        } else {
+          acc[day].expense += transaction.amount;
+        }
+        
+        acc[day].balance = acc[day].income - acc[day].expense;
+        return acc;
+      }, {} as Record<string, DayData>)
+    ).sort((a, b) => parseInt(a.day) - parseInt(b.day));
+  }, [transactionsList]);
+
   if (isPending) {
     return (
       <Card className="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border-neutral-700/50">
@@ -92,8 +143,6 @@ export function TransactionChart({ selectedDate }: TransactionChartProps) {
       </Card>
     );
   }
-
-  const transactionsList = transactions?.data || [];
 
   if (transactionsList.length === 0) {
     return (
@@ -119,51 +168,6 @@ export function TransactionChart({ selectedDate }: TransactionChartProps) {
       </Card>
     );
   }
-
-  // Group by categories
-  const categoryData: CategoryData[] = Object.values(
-    transactionsList.reduce((acc, transaction) => {
-      const key = `${transaction.category.name}-${transaction.type}`;
-      if (!acc[key]) {
-        acc[key] = {
-          name: transaction.category.name,
-          value: 0,
-          color: transaction.category.color,
-          type: transaction.type,
-          count: 0,
-        };
-      }
-      acc[key].value += transaction.amount;
-      acc[key].count += 1;
-      return acc;
-    }, {} as Record<string, CategoryData>)
-  ).sort((a, b) => b.value - a.value);
-
-  // Group by day for bar chart
-  const dayData: DayData[] = Object.values(
-    transactionsList.reduce((acc, transaction) => {
-      const date = new Date(transaction.date);
-      const day = date.getDate().toString();
-      
-      if (!acc[day]) {
-        acc[day] = {
-          day,
-          income: 0,
-          expense: 0,
-          balance: 0,
-        };
-      }
-      
-      if (transaction.type === 'INCOME') {
-        acc[day].income += transaction.amount;
-      } else {
-        acc[day].expense += transaction.amount;
-      }
-      
-      acc[day].balance = acc[day].income - acc[day].expense;
-      return acc;
-    }, {} as Record<string, DayData>)
-  ).sort((a, b) => parseInt(a.day) - parseInt(b.day));
 
   return (
     <Card className="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border-neutral-700/50">

@@ -33,6 +33,7 @@ export function CategoriasSelect({
     queryFn: async () => await getCategories({ type }),
   });
 
+  
   /**
    * Verificar se o array de categorias está vazio
    */
@@ -43,7 +44,7 @@ export function CategoriasSelect({
       <SelectTrigger
         disabled={isPending || isEmptyCategories}
         id={id}
-        className={cn(isPending ? "w-1/2" : "w-fit", classNameTrigger)}
+        className={cn("w-[60%]", classNameTrigger)}
       >
         {isPending ? (
           <Skeleton className="h-2.5 w-full rounded" />
@@ -51,7 +52,7 @@ export function CategoriasSelect({
           <SelectValue
             placeholder={
               isEmptyCategories
-                ? "Nenhuma Categoria"
+                ? "Nenhuma Categoria encontrada"
                 : placeholder || "Selecione uma categoria"
             }
           />

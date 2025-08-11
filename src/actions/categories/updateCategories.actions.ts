@@ -2,14 +2,14 @@
 
 import { prisma } from "@/lib/prisma";
 import { getUserAuth } from "../users/getUserAuth.actions";
-import { CategoryType } from "@/@types/categories";
+import { UpdateCategoryType } from "@/@types/categories";
 
 export async function updateCategories({
   color,
   name,
   type,
   id,
-}: CategoryType) {
+}: UpdateCategoryType) {
   try {
     const userId = await getUserAuth();
 
@@ -36,6 +36,7 @@ export async function updateCategories({
         name,
         type,
         color,
+
       },
     });
     return {

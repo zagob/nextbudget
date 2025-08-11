@@ -15,6 +15,6 @@ export async function getUserAuth() {
 
     return userId;
   } catch (err) {
-    throw new Error('Failed authenticated')
+    throw new Error('Failed authenticated', err as Error)
   }
 }

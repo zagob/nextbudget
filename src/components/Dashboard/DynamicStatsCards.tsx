@@ -1,18 +1,16 @@
 "use client";
 
-import { BarChart3, DollarSign, TrendingDown, TrendingUp } from "lucide-react";
+import { DollarSign, TrendingDown, TrendingUp } from "lucide-react";
 import { StatsCard } from "../StatsCard";
 import { useQuery } from "@tanstack/react-query";
 import { getResumeByDateTransactions } from "@/actions/transactions/getResumeByDateTransactions.actions";
-import useDateStoreFormatted from "@/hooks/useDateStoreFormatted";
 import { transformToCurrency } from "@/lib/utils";
+import { useDateFormatted } from "@/store/date";
 
 export function DynamicStatsCards() {
-  const date = useDateStoreFormatted();
+  const date = useDateFormatted();
   const {
     data: transactions,
-    isLoading,
-    error,
   } = useQuery({
     queryKey: ["resumeByDateTransactions", date],
     queryFn: async () => getResumeByDateTransactions({ date: new Date(date) }),

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { useDateStore } from "@/store/date";
+import { useDateOnly, useDateStore } from "@/store/date";
 import {
   Select,
   SelectContent,
@@ -18,7 +18,8 @@ const MONTHS = Array.from({ length: 12 }, (_, i) =>
 );
 
 export const DateNavigation = () => {
-  const date = useDateStore((state) => state.date);
+  const date = useDateOnly();
+  const setDate = useDateStore((state) => state.setDate);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -42,12 +43,12 @@ export const DateNavigation = () => {
 
   const handleMonthChange = (value: string) => {
     const newDate = new Date(selectedYear, Number(value));
-    useDateStore.getState().setDate(newDate);
+    setDate(newDate);
   };
 
   const handleYearChange = (value: string) => {
     const newDate = new Date(Number(value), selectedMonth);
-    useDateStore.getState().setDate(newDate);
+    setDate(newDate);
   };
 
   return (

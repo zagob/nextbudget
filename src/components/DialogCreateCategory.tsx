@@ -24,13 +24,13 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useDateStore } from "@/store/date";
-import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { createCategories } from "@/actions/categories/createCategories.actions";
+import { TypeTransactionSelect } from "./TypeTransactionSelect";
+import { Separator } from "./ui/separator";
+import { PreviewItem } from "./PreviewCategory";
 
 const formSchema = z.object({
   name: z.string(),
@@ -47,8 +47,8 @@ interface DialogCreateCategoryProps {
 export function DialogCreateCategory({
   type = "EXPENSE",
 }: DialogCreateCategoryProps) {
-  const date = useDateStore((state) => state.date);
-
+  const queryClient = useQueryClient()
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -65,6 +65,7 @@ export function DialogCreateCategory({
     onSuccess: () => {
       form.reset();
       toast.success("Categoria criada com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: () => {
       toast.error("Erro ao criar categoria, tente novamente");
@@ -100,60 +101,58 @@ export function DialogCreateCategory({
                     <FormItem>
                       <FormLabel>Tipo</FormLabel>
                       <FormControl>
-                        <ToggleGroup
+                        <TypeTransactionSelect
                           type="single"
                           value={field.value}
                           onValueChange={field.onChange}
-                          className="border w-full"
-                          orientation="horizontal"
-                        >
-                          <ToggleGroupItem
-                            value="EXPENSE"
-                            className={cn("", {
-                              "pointer-events-none": field.value === "EXPENSE",
-                            })}
-                          >
-                            Saída
-                          </ToggleGroupItem>
-                          <ToggleGroupItem
-                            value="INCOME"
-                            className={cn("", {
-                              "pointer-events-none": field.value === "INCOME",
-                            })}
-                          >
-                            Entrada
-                          </ToggleGroupItem>
-                        </ToggleGroup>
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome da categoria</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="color"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cor</FormLabel>
-                      <FormControl>
-                        <Input type="color" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <div className="grid gap-3 sm:grid-cols-[auto_0.5fr]">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome da categoria</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="color"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cor</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="color"
+                            className=" w-16 rounded-md border border-neutral-600 bg-transparent p-1 cursor-pointer transition-colors duration-200 hover:border-neutral-400"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <Separator />
+              <div className="grid gap-2">
+                <h3>Visualização da categoria</h3>
+                <PreviewItem
+                  category={{
+                    name: form.watch("name"),
+                    color: form.watch("color"),
+                    type: form.watch("type"),
+                  }}
                 />
               </div>
               <DialogFooter>

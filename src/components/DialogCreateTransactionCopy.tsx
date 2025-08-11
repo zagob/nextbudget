@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon, Copy } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -24,12 +24,16 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { cn, transformToCents, validationInputAmount } from "@/lib/utils";
+import {
+  cn,
+  transformToCents,
+  transformToCurrency,
+  validationInputAmount,
+} from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createTransactions } from "@/actions/transactions/createTransactions.actions";
-import { useDateStore } from "@/store/date";
 import { format } from "date-fns";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -39,51 +43,39 @@ import { DialogCreateCategory } from "./DialogCreateCategory";
 import { BanksSelect } from "./BanksSelect";
 import useDateStoreFormatted from "@/hooks/useDateStoreFormatted";
 import { TypeTransactionSelect } from "./TypeTransactionSelect";
+import { TransactionType } from "@/@types/transactions";
 
 const formSchema = z.object({
   date: z.date("Date must be a valid date"),
   type: z.enum(Type),
   accountBankId: z.string(),
   categoryId: z.string(),
-  name: z.string(),
   description: z.string(),
   amount: z.string(),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-interface DialogCreateTransactionProps {
-  type?: Type;
+interface DialogCreateTransactionCopyProps {
+  defaultValues: TransactionType;
 }
 
-export function DialogCreateTransaction({
-  type = "EXPENSE",
-}: DialogCreateTransactionProps) {
+export function DialogCreateTransactionCopy({
+  defaultValues,
+}: DialogCreateTransactionCopyProps) {
   const queryClient = useQueryClient();
   const dateFormatted = useDateStoreFormatted();
-  const date = useDateStore((state) => state.date);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date,
-      type,
-      name: "",
-      accountBankId: "",
-      categoryId: "",
-      description: "",
-      amount: "R$ 0,00",
+      date: defaultValues.date,
+      type: defaultValues.type,
+      description: defaultValues.description ? defaultValues.description : "",
+      accountBankId: defaultValues.accountBankId,
+      categoryId: defaultValues.categoryId,
+      amount: transformToCurrency(defaultValues.amount),
     },
-  });
-
-  const valueAccountBank = form.watch("accountBankId");
-  const valueCategory = form.watch("categoryId");
-
-  const isDisabledButtonCreate =
-    valueAccountBank.length === 0 || valueCategory.length === 0;
-
-  console.log({
-    valueCat: form.watch("categoryId"),
   });
 
   const { mutate, isPending } = useMutation({
@@ -133,18 +125,21 @@ export function DialogCreateTransaction({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm" variant="primary" className="rounded">
-          <Plus className="size-4 mr-1" />
-          Nova Transação
+        <Button
+          variant="ghost"
+          size="sm"
+          className="size-7 p-0 hover:bg-white/10"
+        >
+          <Copy className="size-3.5" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader className="mb-2">
-              <DialogTitle>Nova Transação</DialogTitle>
+              <DialogTitle>Nova Transação copiada</DialogTitle>
               <DialogDescription>
-                Crie uma nova transação para o dia {date.toLocaleDateString()}
+                Crie uma nova transação a partir de uma copia
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4">
@@ -300,7 +295,7 @@ export function DialogCreateTransaction({
                   </Button>
                 </DialogClose>
                 <Button
-                  disabled={isPending || isDisabledButtonCreate}
+                  disabled={isPending}
                   variant="secondary"
                   type="submit"
                   className="disabled:cursor-not-allowed"

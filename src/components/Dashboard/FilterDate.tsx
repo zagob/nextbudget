@@ -12,10 +12,11 @@ import {
 
 import { Calendar } from "lucide-react";
 import { ptBR } from "date-fns/locale";
-import { useDateStore } from "@/store/date";
+import { useDateOnly, useDateStore } from "@/store/date";
 
 export const FilterDate = () => {
-  const date = useDateStore((state) => state.date);
+  const date = useDateOnly();
+  const setDate = useDateStore((state) => state.setDate);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export const FilterDate = () => {
   const handleDateChange = (value: string) => {
     const [year, month] = value.split('-').map(Number);
     const newDate = new Date(year, month);
-    useDateStore.getState().setDate(newDate);
+    setDate(newDate);
   };
 
   return (

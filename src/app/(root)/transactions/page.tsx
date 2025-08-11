@@ -6,17 +6,23 @@ import { Button } from "@/components/ui/button";
 import { TransactionsList } from "@/components/Transactions/TransactionsList";
 import { TransactionChart } from "@/components/Transactions/TransactionChart";
 import { MonthSelector } from "@/components/Transactions/MonthSelector";
-import { TransactionStats } from "@/components/Transactions/TransactionStats";
+// import { TransactionStats } from "@/components/Transactions/TransactionStats";
 import { Calendar, BarChart3, List, Filter } from "lucide-react";
 import { DialogCreateTransaction } from "@/components/DialogCreateTransaction";
+import { useDateOnly, useDateStore } from "@/store/date";
+import { useTransactionsData } from "@/hooks/useTransactionsData";
+import { formatAmountNegative, transformToCurrency } from "@/lib/utils";
 
 export default function TransactionsPage() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const selectedDate = useDateOnly();
+  const setSelectedDate = useDateStore((state) => state.setDate);
   const [viewMode, setViewMode] = useState<"list" | "chart">("list");
+
+  const { transactions, isPendingTransactions, resume } =
+    useTransactionsData(selectedDate);
 
   return (
     <div className="py-4 space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg">
@@ -82,7 +88,10 @@ export default function TransactionsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           {viewMode === "list" ? (
-            <TransactionsList selectedDate={selectedDate} />
+            <TransactionsList
+              transactions={transactions?.data || []}
+              isPending={isPendingTransactions}
+            />
           ) : (
             <TransactionChart selectedDate={selectedDate} />
           )}
@@ -102,22 +111,36 @@ export default function TransactionsPage() {
                   <p className="text-sm text-neutral-400 mb-1">
                     Total de Transações
                   </p>
-                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-2xl font-bold text-white">
+                    {transactions?.data?.length || 0}
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="text-center p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                     <p className="text-xs text-green-400 mb-1">Receitas</p>
                     <p className="text-lg font-semibold text-green-400">
-                      R$ 0,00
+                      {transformToCurrency(
+                        resume?.data?.totalAmountIncome || 0
+                      )}
                     </p>
                   </div>
                   <div className="text-center p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                     <p className="text-xs text-red-400 mb-1">Despesas</p>
                     <p className="text-lg font-semibold text-red-400">
-                      R$ 0,00
+                      {transformToCurrency(
+                        resume?.data?.totalAmountExpenses || 0
+                      )}
                     </p>
                   </div>
+                </div>
+                <div className="text-center p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                  <p className="text-xs text-blue-400 mb-1">Balanço</p>
+                  <p className="text-lg font-semibold text-blue-400">
+                    {formatAmountNegative(
+                      transformToCurrency(resume?.data?.totalAmount || 0)
+                    )}
+                  </p>
                 </div>
               </div>
             </CardContent>

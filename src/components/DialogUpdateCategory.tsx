@@ -24,17 +24,16 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
-import { CategoryType } from "@/@types/categories";
+import { UpdateCategoryType } from "@/@types/categories";
 import { useState } from "react";
 import { updateCategories } from "@/actions/categories/updateCategories.actions";
 import { PreviewItem } from "./PreviewCategory";
 import { Separator } from "./ui/separator";
 import { DialogDeleteCategory } from "./DialogDeleteCategory";
+import { TypeTransactionSelect } from "./TypeTransactionSelect";
 
 const formSchema = z.object({
   id: z.string(),
@@ -46,15 +45,17 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 interface DialogUpdateCategoryProps {
-  category: CategoryType;
+  category: UpdateCategoryType;
 }
 
 export function DialogUpdateCategory({ category }: DialogUpdateCategoryProps) {
+  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      id: category.id,
       name: category.name,
       color: category.color,
       type: category.type,
@@ -66,17 +67,24 @@ export function DialogUpdateCategory({ category }: DialogUpdateCategoryProps) {
       await updateCategories(data);
     },
     onSuccess: () => {
-      form.reset();
-      toast.success("Categoria atualizada com sucesso");
+      toast.success("Categoria atualizada com sucesso", {
+        richColors: true,
+      });
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: () => {
-      toast.error("Erro ao atualizar categoria, tente novamente");
+      toast.error("Erro ao atualizar categoria, tente novamente", {
+        richColors: true,
+      });
     },
   });
 
   async function onSubmit(data: FormData) {
+    console.log(data)
     mutate(data);
   }
+
+  console.log(form.formState.errors)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -108,30 +116,12 @@ export function DialogUpdateCategory({ category }: DialogUpdateCategoryProps) {
                       <FormItem>
                         <FormLabel>Tipo</FormLabel>
                         <FormControl>
-                          <ToggleGroup
+                          <TypeTransactionSelect
                             type="single"
-                            defaultValue={field.value}
-                            className="border w-full cursor-not-allowed"
-                            orientation="horizontal"
+                            value={field.value}
+                            onValueChange={field.onChange}
                             disabled
-                          >
-                            <ToggleGroupItem
-                              value="EXPENSE"
-                              className={cn(
-                                "pointer-events-none data-[state=on]:bg-red-400"
-                              )}
-                            >
-                              Saída
-                            </ToggleGroupItem>
-                            <ToggleGroupItem
-                              value="INCOME"
-                              className={cn(
-                                "pointer-events-none data-[state=on]:bg-green-400"
-                              )}
-                            >
-                              Entrada
-                            </ToggleGroupItem>
-                          </ToggleGroup>
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
