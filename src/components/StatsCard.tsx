@@ -24,7 +24,7 @@ export function StatsCard({
         <div className="flex items-center justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <div className={`p-2 rounded-lg ${color}`}>
+              <div className={`p-2 rounded ${color}`}>
                 <Icon className="w-4 h-4 text-white" />
               </div>
               <span className="text-sm text-neutral-400 font-medium">

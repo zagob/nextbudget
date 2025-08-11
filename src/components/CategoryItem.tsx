@@ -33,10 +33,10 @@ export const CategoryItem = memo(({ category }: { category: CategoryType }) => {
       <div className="flex items-center gap-2">
         <div className="text-right">
           <p className="text-sm font-semibold text-neutral-300">
-            {category?.transactionCount || 0} transações
+            {category?._count.Transactions || 0} transações
           </p>
           <p className="text-xs text-neutral-500">
-            {transformToCurrency(category?.totalValue || 0)}
+            {transformToCurrency(category?.totalAmountCategory || 0)}
           </p>
         </div>
         <Button

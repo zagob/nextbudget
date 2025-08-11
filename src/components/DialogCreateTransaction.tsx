@@ -98,6 +98,18 @@ export function DialogCreateTransaction({
       queryClient.invalidateQueries({
         queryKey: ["transactions", dateFormatted],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["resumeByDateTransactions", dateFormatted],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["categories"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["resume-transactions"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["account-banks"],
+      });
     },
     onError: () => {
       toast.error("Erro ao criar transação, tente novamente");
@@ -114,12 +126,10 @@ export function DialogCreateTransaction({
     event.target.value = formatted;
   }
 
-  console.log("dialog transactions");
-
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm" variant="primary">
+        <Button size="sm" variant="primary" className="rounded">
           <Plus className="size-4 mr-1" />
           Nova Transação
         </Button>
@@ -151,17 +161,24 @@ export function DialogCreateTransaction({
                         >
                           <ToggleGroupItem
                             value="EXPENSE"
-                            className={cn("", {
-                              "pointer-events-none": field.value === "EXPENSE",
-                            })}
+                            className={cn(
+                              "cursor-pointer data-[state=on]:bg-red-500/40",
+                              {
+                                "pointer-events-none":
+                                  field.value === "EXPENSE",
+                              }
+                            )}
                           >
                             Saída
                           </ToggleGroupItem>
                           <ToggleGroupItem
                             value="INCOME"
-                            className={cn("", {
-                              "pointer-events-none": field.value === "INCOME",
-                            })}
+                            className={cn(
+                              "cursor-pointer data-[state=on]:bg-green-500/40",
+                              {
+                                "pointer-events-none": field.value === "INCOME",
+                              }
+                            )}
                           >
                             Entrada
                           </ToggleGroupItem>
@@ -228,21 +245,6 @@ export function DialogCreateTransaction({
                             defaultValue={field.value}
                             onValueChange={field.onChange}
                           />
-                          {/* <Select
-                            defaultValue={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <SelectTrigger id="name-bank" className="w-fit">
-                              <SelectValue placeholder="Selecione um banco" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.values(BANKS).map((bank) => (
-                                <SelectItem key={bank} value={bank}>
-                                  {bank}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select> */}
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -257,13 +259,14 @@ export function DialogCreateTransaction({
                     <FormItem>
                       <FormLabel>Categoria</FormLabel>
                       <FormControl>
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-2">
                           <CategoriasSelect
                             defaultValue={field.value}
                             onValueChange={field.onChange}
                             placeholder="Selecione uma categoria"
+                            type={form.watch("type")}
                           />
-                          <DialogCreateCategory type={type} />
+                          <DialogCreateCategory type={form.watch("type")} />
                         </div>
                       </FormControl>
                       <FormMessage />

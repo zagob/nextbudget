@@ -78,7 +78,7 @@ export function DialogCreateCategory({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm" variant="primary">
+        <Button size="sm" variant="primary" className="rounded">
           <Plus className="w-4 h-4" />
         </Button>
       </DialogTrigger>

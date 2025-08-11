@@ -12,22 +12,25 @@ import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { getCategories } from "@/actions/categories/getCategories.actions";
 import { Skeleton } from "./ui/skeleton";
+import { Type } from "@prisma/client";
 
 interface CategoriasSelectProps extends SelectProps {
   id?: string;
   placeholder?: string;
   classNameTrigger?: string;
+  type?: Type;
 }
 
 export function CategoriasSelect({
   id,
   placeholder,
   classNameTrigger,
+  type = "EXPENSE",
   ...props
 }: CategoriasSelectProps) {
   const { data: categories, isPending } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => await getCategories(),
+    queryKey: ["categories", type],
+    queryFn: async () => await getCategories({ type }),
   });
 
   /**

@@ -129,6 +129,7 @@ export const LatestTransactions = () => {
             <Receipt className="w-5 h-5" />
             Últimas Transações
           </CardTitle>
+
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -146,6 +147,7 @@ export const LatestTransactions = () => {
               <Search className="w-4 h-4 mr-1" />
               Buscar
             </Button>
+            <DialogCreateTransaction />
           </div>
         </div>
       </CardHeader>

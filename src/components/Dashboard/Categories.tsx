@@ -4,13 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  Tag,
-  Filter,
-  Search,
-  TrendingUp,
-  TrendingDown,
-} from "lucide-react";
+import { Tag, Filter, Search, TrendingUp, TrendingDown } from "lucide-react";
 import { useDateStore } from "@/store/date";
 import { LoadingCard } from "../LoadingCard";
 import { DialogCreateCategory } from "../DialogCreateCategory";
@@ -19,19 +13,22 @@ import { CategoryItem } from "../CategoryItem";
 
 // Componente de item de categoria moderna
 
-
 export const Categories = () => {
   const date = useDateStore((state) => state.date);
 
   const { data: categories, isPending } = useQuery({
     queryKey: ["categories"],
-    queryFn: async () => await getCategories(),
+    queryFn: async () => await getCategories({}),
+  });
+
+  console.log({
+    categories,
   });
 
   const dataCategories = categories?.data || [];
 
   const recentCategories = dataCategories.slice(0, 6) || [];
-  
+
   if (isPending) {
     return (
       <Card className="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border-neutral-700/50">
@@ -54,10 +51,10 @@ export const Categories = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CardTitle className="flex items-center gap-2 text-white">
-            <Tag className="w-5 h-5" />
-            Categorias
-          </CardTitle>
-          <DialogCreateCategory />
+              <Tag className="w-5 h-5" />
+              Categorias
+            </CardTitle>
+            <DialogCreateCategory />
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -132,8 +129,9 @@ export const Categories = () => {
                     <span className="text-xs text-neutral-400">Despesas</span>
                   </div>
                   <p className="text-sm font-medium text-white">
-                    {dataCategories?.filter((c) => c.type === "EXPENSE")
-                      .length || 0}
+                    {categories?.data?.filter(
+                      (category) => category.type === "EXPENSE"
+                    ).length || 0}
                   </p>
                 </div>
               </div>

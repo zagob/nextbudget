@@ -3,13 +3,16 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { NavigationItem } from "./NavigationItem";
+import Link from "next/link";
 
 export const Menu = () => {
   return (
     <NavigationMenu className="mb-4">
       <NavigationMenuList>
         <NavigationItem href="/" title="Resumo Geral" />
+        {/* <Link href="/">Resumo Geral</Link> */}
         <NavigationItem href="/accounts" title="Bancos" />
+        {/* <Link href="/transactions">Transações</Link> */}
         <NavigationItem href="/transactions" title="Transações" />
         <NavigationItem href="/transfers" title="Transferências" />
 
