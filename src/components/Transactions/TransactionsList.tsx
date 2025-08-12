@@ -2,66 +2,36 @@
 
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Receipt, 
-  Calendar,
-} from "lucide-react";
+import { Receipt, Calendar } from "lucide-react";
 import { transformToCurrency } from "@/lib/utils";
 import { LoadingCard } from "@/components/LoadingCard";
 import { DialogCreateTransaction } from "@/components/DialogCreateTransaction";
-import { TransactionType } from "@/@types/transactions";
-import { format, isValid } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TransactionItem } from "./TransactionItem";
+import { useQuery } from "@tanstack/react-query";
+import { getTransactionsGroupedDate } from "@/actions/transactions/getTransactionsGroupedDate.actions";
+import { useDateOnly } from "@/store/date";
 
-interface TransactionsListProps {
-  transactions: TransactionType[]
-  isPending: boolean
+export function TransactionsList() {
+  const date = useDateOnly();
+  const { data: groupedTransactions, isPending: isPendingGrouped } = useQuery({
+    queryKey: ["transactions-groupedDate", date],
+    queryFn: async () =>
+      await getTransactionsGroupedDate({
+        date,
+      }),
+  });
 
-}
+  const sortedDates = useMemo(
+    () =>
+      Object.keys(groupedTransactions?.data || []).sort(
+        (a, b) => new Date(b).getTime() - new Date(a).getTime()
+      ),
+    [groupedTransactions]
+  );
 
-interface GroupedTransactions {
-  [key: string]: TransactionType[];
-}
-
-
-
-export function TransactionsList({ transactions, isPending }: TransactionsListProps) {
-
-  // Memoizar agrupamento de transações
-  const groupedTransactions: GroupedTransactions = useMemo(() => {
-    return transactions.reduce((groups, transaction) => {
-      let transactionDate: Date;
-      
-      if (transaction.date instanceof Date) {
-        transactionDate = transaction.date;
-      } else {
-        transactionDate = new Date(transaction.date);
-      }
-
-      if (!isValid(transactionDate)) {
-        console.warn('Invalid date found:', transaction.date);
-        return groups;
-      }
-
-      const dateKey = format(transactionDate, "yyyy-MM-dd");
-      
-      if (!groups[dateKey]) {
-        groups[dateKey] = [];
-      }
-      groups[dateKey].push(transaction);
-      
-      return groups;
-    }, {} as GroupedTransactions);
-  }, [transactions]);
-
-  // Memoizar datas ordenadas
-  const sortedDates = useMemo(() => 
-    Object.keys(groupedTransactions).sort((a, b) => 
-      new Date(b).getTime() - new Date(a).getTime()
-    ), [groupedTransactions]);
-
-  if (isPending) {
+  if (isPendingGrouped) {
     return (
       <Card className="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border-neutral-700/50">
         <CardHeader className="pb-4">
@@ -77,7 +47,7 @@ export function TransactionsList({ transactions, isPending }: TransactionsListPr
     );
   }
 
-  if (transactions.length === 0) {
+  if (!groupedTransactions?.data) {
     return (
       <Card className="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border-neutral-700/50">
         <CardHeader className="pb-4">
@@ -110,7 +80,7 @@ export function TransactionsList({ transactions, isPending }: TransactionsListPr
             <Receipt className="w-5 h-5" />
             Transações do Mês
             <span className="text-sm font-normal text-neutral-400">
-              ({transactions.length} transações)
+              ({groupedTransactions.count} transações)
             </span>
           </div>
         </CardTitle>
@@ -118,16 +88,12 @@ export function TransactionsList({ transactions, isPending }: TransactionsListPr
 
       <CardContent className="space-y-6">
         {sortedDates.map((dateKey) => {
-          const dayTransactions = groupedTransactions[dateKey];
-          const date = new Date(dateKey);
+          const day = groupedTransactions.data[dateKey];
+          const dayTransactions = day.transactions;
+          const date = parseISO(dateKey);
 
-          const dayIncome = dayTransactions
-            .filter((t) => t.type === "INCOME")
-            .reduce((sum, t) => sum + t.amount, 0);
-
-          const dayExpense = dayTransactions
-            .filter((t) => t.type === "EXPENSE")
-            .reduce((sum, t) => sum + t.amount, 0);
+          const dayExpense = day.dayExpense;
+          const dayIncome = day.dayIncome;
 
           return (
             <div key={dateKey} className="space-y-3">

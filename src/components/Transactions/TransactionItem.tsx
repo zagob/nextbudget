@@ -2,7 +2,6 @@
 
 import { TransactionType } from "@/@types/transactions";
 import { transformToCurrency } from "@/lib/utils";
-import { format } from "date-fns";
 import { MoreHorizontal, Trash, TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -60,8 +59,6 @@ export function TransactionItem({
 
           <div className="flex items-center gap-2 text-xs text-neutral-400">
             <span>{transaction.bank}</span>
-            <span>•</span>
-            <span>{format(new Date(transaction.date), "HH:mm")}</span>
           </div>
         </div>
       </div>

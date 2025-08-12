@@ -12,6 +12,12 @@ import { DialogCreateTransaction } from "@/components/DialogCreateTransaction";
 import { useDateOnly, useDateStore } from "@/store/date";
 import { useTransactionsData } from "@/hooks/useTransactionsData";
 import { formatAmountNegative, transformToCurrency } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function TransactionsPage() {
   const selectedDate = useDateOnly();
@@ -37,19 +43,31 @@ export default function TransactionsPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Filter className="w-4 h-4 mr-2" />
+                Filtros
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-4" align="end">
+              <div className="space-y-4">
+                filtro aq
+              </div>
+            </PopoverContent>
+          </Popover>
+          {/* <Button
             variant="outline"
             size="sm"
             className="border-neutral-700 hover:bg-neutral-800"
           >
             <Filter className="w-4 h-4 mr-2" />
             Filtros
-          </Button>
+          </Button> */}
           <DialogCreateTransaction />
         </div>
       </div>
 
-      {/* Month Selector and Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <MonthSelector
@@ -88,10 +106,7 @@ export default function TransactionsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           {viewMode === "list" ? (
-            <TransactionsList
-              transactions={transactions?.data || []}
-              isPending={isPendingTransactions}
-            />
+            <TransactionsList />
           ) : (
             <TransactionChart selectedDate={selectedDate} />
           )}
@@ -119,17 +134,25 @@ export default function TransactionsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="text-center p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                     <p className="text-xs text-green-400 mb-1">Receitas</p>
-                    <p className="text-lg font-semibold text-green-400">
-                      {transformToCurrency(
-                        resume?.data?.totalAmountIncome || 0
+                    <p className="text-lg w-full flex justify-center font-semibold text-green-400">
+                      {isPendingTransactions ? (
+                        <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
+                      ) : (
+                        transformToCurrency(
+                          resume?.data?.totalAmountIncome || 0
+                        )
                       )}
                     </p>
                   </div>
                   <div className="text-center p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                     <p className="text-xs text-red-400 mb-1">Despesas</p>
                     <p className="text-lg font-semibold text-red-400">
-                      {transformToCurrency(
-                        resume?.data?.totalAmountExpenses || 0
+                      {isPendingTransactions ? (
+                        <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
+                      ) : (
+                        transformToCurrency(
+                          resume?.data?.totalAmountExpenses || 0
+                        )
                       )}
                     </p>
                   </div>
@@ -137,8 +160,12 @@ export default function TransactionsPage() {
                 <div className="text-center p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                   <p className="text-xs text-blue-400 mb-1">Balanço</p>
                   <p className="text-lg font-semibold text-blue-400">
-                    {formatAmountNegative(
-                      transformToCurrency(resume?.data?.totalAmount || 0)
+                    {isPendingTransactions ? (
+                      <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
+                    ) : (
+                      formatAmountNegative(
+                        transformToCurrency(resume?.data?.totalAmount || 0)
+                      )
                     )}
                   </p>
                 </div>

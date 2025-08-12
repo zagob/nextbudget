@@ -44,6 +44,7 @@ import { BanksSelect } from "./BanksSelect";
 import useDateStoreFormatted from "@/hooks/useDateStoreFormatted";
 import { TypeTransactionSelect } from "./TypeTransactionSelect";
 import { TransactionType } from "@/@types/transactions";
+import { usePathname } from "next/navigation";
 
 const formSchema = z.object({
   date: z.date("Date must be a valid date"),
@@ -63,6 +64,7 @@ interface DialogCreateTransactionCopyProps {
 export function DialogCreateTransactionCopy({
   defaultValues,
 }: DialogCreateTransactionCopyProps) {
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const dateFormatted = useDateStoreFormatted();
 
@@ -87,7 +89,6 @@ export function DialogCreateTransactionCopy({
       });
     },
     onSuccess: () => {
-      form.reset();
       toast.success("Transação criada com sucesso", {
         richColors: true,
       });
@@ -106,6 +107,12 @@ export function DialogCreateTransactionCopy({
       queryClient.invalidateQueries({
         queryKey: ["account-banks"],
       });
+
+      if (pathname === "/transactions") {
+        queryClient.invalidateQueries({
+          queryKey: ["transactions-groupedDate"],
+        });
+      }
     },
     onError: () => {
       toast.error("Erro ao criar transação, tente novamente");
