@@ -44,9 +44,9 @@ import useDateStoreFormatted from "@/hooks/useDateStoreFormatted";
 import { TypeTransactionSelect } from "./TypeTransactionSelect";
 import { updateTransactions } from "@/actions/transactions/updateTransactions.actions";
 import { TransactionType } from "@/@types/transactions";
+import { usePathname } from "next/navigation";
 
 const formSchema = z.object({
-  id: z.string(),
   date: z.date("Date must be a valid date"),
   type: z.enum(Type),
   accountBankId: z.string(),
@@ -64,6 +64,7 @@ interface DialogUpdateTransactionProps {
 export function DialogUpdateTransaction({
   defaultValues,
 }: DialogUpdateTransactionProps) {
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const dateFormatted = useDateStoreFormatted();
 
@@ -83,7 +84,7 @@ export function DialogUpdateTransaction({
     mutationFn: async (data: FormData) => {
       const amount = transformToCents(data.amount);
       await updateTransactions({
-        transactionId: data.id,
+        transactionId: defaultValues.id,
         data: {
           ...data,
           amount,
@@ -91,7 +92,6 @@ export function DialogUpdateTransaction({
       });
     },
     onSuccess: () => {
-      form.reset();
       toast.success("Transação atualizada com sucesso", {
         richColors: true,
       });
@@ -110,6 +110,12 @@ export function DialogUpdateTransaction({
       queryClient.invalidateQueries({
         queryKey: ["account-banks"],
       });
+
+      if (pathname === "/transactions") {
+        queryClient.invalidateQueries({
+          queryKey: ["transactions-groupedDate"],
+        });
+      }
     },
     onError: () => {
       toast.error("Erro ao atualizar transação, tente novamente", {

@@ -45,25 +45,18 @@ export default function TransactionsPage() {
         <div className="flex items-center gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Filter className="w-4 h-4 mr-2" />
-                Filtros
+              <Button variant="outline" size="sm" className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Filtros
+                </div>
+                {/* <div className="bg-blue-600 ml-4 rounded-full size-2" /> */}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-4" align="end">
-              <div className="space-y-4">
-                filtro aq
-              </div>
+              <div className="space-y-4">filtro aq</div>
             </PopoverContent>
           </Popover>
-          {/* <Button
-            variant="outline"
-            size="sm"
-            className="border-neutral-700 hover:bg-neutral-800"
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            Filtros
-          </Button> */}
           <DialogCreateTransaction />
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { TransactionType } from "@/@types/transactions";
 import { transformToCurrency } from "@/lib/utils";
-import { MoreHorizontal, Trash, TrendingDown, TrendingUp } from "lucide-react";
+import { MoreHorizontal, TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -13,6 +13,7 @@ import {
 } from "../ui/dropdown-menu";
 import { DialogCreateTransactionCopy } from "../DialogCreateTransactionCopy";
 import { DialogUpdateTransaction } from "../DialogUpdateTransaction";
+import { DialogDeleteTransaction } from "../DialogDeleteTransaction";
 
 export function TransactionItem({
   transaction,
@@ -97,14 +98,7 @@ export function TransactionItem({
               <DialogUpdateTransaction defaultValues={transaction} />
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Button
-                size="xs"
-                variant="destructive"
-                className="rounded"
-                disabled
-              >
-                <Trash className="text-white" />
-              </Button>
+              <DialogDeleteTransaction transactionId={transaction.id} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

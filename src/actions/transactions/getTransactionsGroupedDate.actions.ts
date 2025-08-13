@@ -7,6 +7,7 @@ import { TransactionType } from "@/@types/transactions";
 
 interface GetTransactionsGroupedDateProps {
   date: Date;
+  ascCategory?: boolean;
 }
 
 type GroupedTransactionsType = {
