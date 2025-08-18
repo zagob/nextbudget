@@ -7,12 +7,15 @@ import { HistoricStatsCard } from "@/components/Dashboard/HistoricStatsCard";
 import { LatestTransactions } from "@/components/Dashboard/LatestTransactions";
 import { DateNavigation } from "@/components/DateNavigation";
 import { LoadingCard } from "@/components/LoadingCard";
+import { SelectIconsExample } from "@/components/SelectIconsExample";
 import { Suspense } from "react";
 
 export default function Home() {
   return (
     <div className="py-4 space-y-6">
       <DashboardHeader />
+
+      <SelectIconsExample />
 
       <DynamicStatsCards />
 

@@ -5,6 +5,7 @@ type CategoryType = {
   type: Type;
   name: string;
   color: string;
+  icon: string;
   _count: {
     user: number;
     Transactions: number;
@@ -13,7 +14,7 @@ type CategoryType = {
 };
 
 type UpdateCategoryType = {
-  id: string
+  id: string;
   name: string;
   type: Type;
   color: string;

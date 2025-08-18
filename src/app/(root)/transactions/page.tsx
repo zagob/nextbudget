@@ -45,7 +45,11 @@ export default function TransactionsPage() {
         <div className="flex items-center gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center justify-between"
+              >
                 <div className="flex items-center">
                   <Filter className="w-4 h-4 mr-2" />
                   Filtros
@@ -68,7 +72,7 @@ export default function TransactionsPage() {
             onDateChange={setSelectedDate}
           />
         </div>
-        <div>{/* <TransactionStats selectedDate={selectedDate} /> */}</div>
+        {/* <TransactionStats selectedDate={selectedDate} /> */}
       </div>
 
       {/* View Toggle */}
@@ -127,40 +131,40 @@ export default function TransactionsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="text-center p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                     <p className="text-xs text-green-400 mb-1">Receitas</p>
-                    <p className="text-lg w-full flex justify-center font-semibold text-green-400">
-                      {isPendingTransactions ? (
-                        <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
-                      ) : (
-                        transformToCurrency(
+                    {isPendingTransactions ? (
+                      <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
+                    ) : (
+                      <p className="text-lg w-full flex justify-center font-semibold text-green-400">
+                        {transformToCurrency(
                           resume?.data?.totalAmountIncome || 0
-                        )
-                      )}
-                    </p>
+                        )}
+                      </p>
+                    )}
                   </div>
                   <div className="text-center p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                     <p className="text-xs text-red-400 mb-1">Despesas</p>
-                    <p className="text-lg font-semibold text-red-400">
-                      {isPendingTransactions ? (
-                        <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
-                      ) : (
-                        transformToCurrency(
+                    {isPendingTransactions ? (
+                      <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
+                    ) : (
+                      <p className="text-lg font-semibold text-red-400">
+                        {transformToCurrency(
                           resume?.data?.totalAmountExpenses || 0
-                        )
-                      )}
-                    </p>
+                        )}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="text-center p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                   <p className="text-xs text-blue-400 mb-1">Balanço</p>
-                  <p className="text-lg font-semibold text-blue-400">
-                    {isPendingTransactions ? (
-                      <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
-                    ) : (
-                      formatAmountNegative(
+                  {isPendingTransactions ? (
+                    <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
+                  ) : (
+                    <p className="text-lg font-semibold text-blue-400">
+                      {formatAmountNegative(
                         transformToCurrency(resume?.data?.totalAmount || 0)
-                      )
-                    )}
-                  </p>
+                      )}
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>

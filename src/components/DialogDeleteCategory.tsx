@@ -34,7 +34,7 @@ export function DialogDeleteCategory({
     onSuccess: () => {
       toast.success("Categoria excluida com sucesso");
       setOpen(false);
-      onOpenChange(false)
+      onOpenChange(false);
     },
     onError: () => {
       toast.error("Erro ao excluir categoria, tente novamente");
@@ -44,9 +44,7 @@ export function DialogDeleteCategory({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive">
-          Excluir
-        </Button>
+        <Button variant="destructive">Excluir</Button>
       </DialogTrigger>
       {open && (
         <DialogContent className="sm:max-w-[425px]">

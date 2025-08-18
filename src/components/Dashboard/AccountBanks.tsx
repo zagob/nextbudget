@@ -1,33 +1,31 @@
 "use client";
 
-import { useState, } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 import { useQuery } from "@tanstack/react-query";
 
 import { transformToCurrency } from "@/lib/utils";
-import {
-  CreditCard,
-} from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { LoadingCard } from "../LoadingCard";
 import { useSession } from "next-auth/react";
 import { getBanks } from "@/actions/banks/getBanks.actions";
 import { AccountBank } from "./AccountBank";
 import { DialogCreateAccountBank } from "../DialogCreateAccountBank";
 
-
-
 export const AccountBanks = () => {
-  const [visibleAccounts, setVisibleAccounts] = useState<
-    Record<string, boolean>
-  >({});
-
   const { data: session, status } = useSession();
 
   const { data: banks, isPending } = useQuery({
     queryKey: ["account-banks"],
     queryFn: async () => await getBanks(),
   });
+
+  const [visibleAccounts, setVisibleAccounts] = useState<
+    Record<string, boolean>
+  >(
+    Object.fromEntries(banks?.data?.banks?.map((bank) => [bank.id, true]) || [])
+  );
 
   const isLoading = status === "loading";
 
@@ -109,7 +107,6 @@ export const AccountBanks = () => {
               </span>
             </div>
             <DialogCreateAccountBank />
-            
           </div>
         </div>
       </CardHeader>

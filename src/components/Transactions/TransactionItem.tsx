@@ -23,10 +23,10 @@ export function TransactionItem({
   const isIncome = transaction.type === "INCOME";
 
   return (
-    <div className="flex items-center justify-between p-3 bg-neutral-800/30 rounded-lg hover:bg-neutral-800/50 transition-all duration-200 border border-neutral-700/30 hover:border-neutral-600/50">
+    <div className="flex items-center justify-between px-3 py-1.5 bg-neutral-800/30 rounded-lg hover:bg-neutral-800/50 transition-all duration-200 border border-neutral-700/30 hover:border-neutral-600/50">
       <div className="flex items-center gap-3">
         <div
-          className="p-2 rounded-lg"
+          className="p-2 rounded"
           style={{ backgroundColor: `${transaction.category.color}20` }}
         >
           {isIncome ? (

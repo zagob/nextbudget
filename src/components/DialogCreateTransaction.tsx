@@ -39,6 +39,7 @@ import { DialogCreateCategory } from "./DialogCreateCategory";
 import { BanksSelect } from "./BanksSelect";
 import useDateStoreFormatted from "@/hooks/useDateStoreFormatted";
 import { TypeTransactionSelect } from "./TypeTransactionSelect";
+import { usePathname } from "next/navigation";
 
 const formSchema = z.object({
   date: z.date("Date must be a valid date"),
@@ -59,6 +60,7 @@ interface DialogCreateTransactionProps {
 export function DialogCreateTransaction({
   type = "EXPENSE",
 }: DialogCreateTransactionProps) {
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const dateFormatted = useDateStoreFormatted();
   const date = useDateStore((state) => state.date);
@@ -81,10 +83,6 @@ export function DialogCreateTransaction({
 
   const isDisabledButtonCreate =
     valueAccountBank.length === 0 || valueCategory.length === 0;
-
-  console.log({
-    valueCat: form.watch("categoryId"),
-  });
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: FormData) => {
@@ -114,6 +112,12 @@ export function DialogCreateTransaction({
       queryClient.invalidateQueries({
         queryKey: ["account-banks"],
       });
+
+      if (pathname === "/transactions") {
+        queryClient.invalidateQueries({
+          queryKey: ["transactions-groupedDate"],
+        });
+      }
     },
     onError: () => {
       toast.error("Erro ao criar transação, tente novamente");

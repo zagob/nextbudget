@@ -47,7 +47,7 @@ export function TransactionsList() {
     );
   }
 
-  if (!groupedTransactions?.data) {
+  if (!groupedTransactions?.data || groupedTransactions.count === 0) {
     return (
       <Card className="bg-gradient-to-br from-neutral-800/50 to-neutral-900/50 border-neutral-700/50">
         <CardHeader className="pb-4">
@@ -96,13 +96,13 @@ export function TransactionsList() {
           const dayIncome = day.dayIncome;
 
           return (
-            <div key={dateKey} className="space-y-3">
-              {/* Day Header */}
-              <div className="flex items-center justify-between p-3 bg-neutral-700/30 rounded-lg border border-neutral-600/30">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/20 rounded-lg">
-                    <Calendar className="w-4 h-4 text-blue-400" />
-                  </div>
+            <div
+              key={dateKey}
+              className="border border-neutral-600/30 rounded p-3 space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calendar className="size-5 text-blue-400" />
                   <div>
                     <h3 className="text-sm font-semibold text-white">
                       {format(date, "EEEE, dd 'de' MMMM", { locale: ptBR })}
@@ -112,7 +112,6 @@ export function TransactionsList() {
                     </p>
                   </div>
                 </div>
-
                 <div className="flex items-center gap-4 text-sm">
                   {dayIncome > 0 && (
                     <span className="text-green-400">
@@ -126,9 +125,7 @@ export function TransactionsList() {
                   )}
                 </div>
               </div>
-
-              {/* Day Transactions */}
-              <div className="space-y-2 ml-4">
+              <div className="space-y-2">
                 {dayTransactions.map((transaction) => (
                   <TransactionItem
                     key={transaction.id}
