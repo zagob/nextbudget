@@ -3,7 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { getUserAuth } from "../users/getUserAuth.actions";
 import { read, utils } from "xlsx";
-import { parse } from "date-fns";
 
 interface GetImportTransactionsProps {
   file: File;
@@ -40,6 +39,8 @@ export async function getImportTransactions({
         description: row["description"],
         amount: Number(row["amount"]),
         type: row["type"],
+        bank: row["bank"],
+        category: row["category"],
         date,
       };
     });
@@ -48,6 +49,56 @@ export async function getImportTransactions({
       transactions,
     });
 
+    const accountBanks = await prisma.accountBanks.findMany({
+      where: { userId },
+      select: { id: true, bank: true, amount: true },
+    });
+
+    const categories = await prisma.categories.findMany({
+      where: { userId },
+      select: { id: true, name: true },
+    });
+
+    const operations = [];
+
+    for (const tx of transactions) {
+      const accountBank = accountBanks.find((b) => b.name === tx.bank);
+      const category = categories.find((c) => c.name === tx.category);
+
+      if (!accountBank) {
+        throw new Error(`Conta bancária não encontrada: ${tx.bank}`);
+      }
+
+      // Atualizar saldo
+      const newAmount =
+        tx.type === "EXPENSE"
+          ? accountBank.amount - tx.amount
+          : accountBank.amount + tx.amount;
+
+      operations.push(
+        prisma.accountBanks.update({
+          where: { id: accountBank.id, userId },
+          data: { amount: newAmount },
+        })
+      );
+
+      operations.push(
+        prisma.transactions.create({
+          data: {
+            userId,
+            accountBankId: accountBank.id,
+            description: tx.description,
+            amount: tx.amount,
+            type: tx.type,
+            date: tx.date,
+            categoryId: category?.id || "", // 🔹 aqui você pode mapear categoria se já tiver tabela
+          },
+        })
+      );
+
+      // manter o saldo atualizado localmente para não sobrescrever errado
+      accountBank.amount = newAmount;
+    }
     //     await prisma.transactions.createMany({
     //   data: [{
 
