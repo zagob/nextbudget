@@ -5,7 +5,7 @@ interface StatsCardProps {
   title: string;
   value: string;
   change?: string;
-  changeType?: "up" | "down";
+  changeType?: "up" | "down" | null;
   icon: LucideIcon;
   color: string;
 }

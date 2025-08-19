@@ -34,7 +34,7 @@ export function ResumeMonth() {
                 <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
               ) : (
                 <p className="text-lg w-full flex justify-center font-semibold text-green-400">
-                  {transformToCurrency(resume?.data?.totalAmountIncome || 0)}
+                  {transformToCurrency(resume?.data?.income.current || 0)}
                 </p>
               )}
             </div>
@@ -44,7 +44,7 @@ export function ResumeMonth() {
                 <Skeleton className="h-5 mt-1.5 w-1/2 text-center bg-green-900 rounded" />
               ) : (
                 <p className="text-lg font-semibold text-red-400">
-                  {transformToCurrency(resume?.data?.totalAmountExpenses || 0)}
+                  {transformToCurrency(resume?.data?.expense.current || 0)}
                 </p>
               )}
             </div>
@@ -56,7 +56,7 @@ export function ResumeMonth() {
             ) : (
               <p className="text-lg font-semibold text-blue-400">
                 {formatAmountNegative(
-                  transformToCurrency(resume?.data?.totalAmount || 0)
+                  transformToCurrency(resume?.data?.balance.current || 0)
                 )}
               </p>
             )}

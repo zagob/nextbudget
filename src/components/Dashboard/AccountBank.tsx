@@ -19,7 +19,7 @@ export const AccountBank = memo(
     
     return (
       <Card
-        className={`bg-gradient-to-br ${getGradientClass(
+        className={`bg-gradient-to-br rounded ${getGradientClass(
           account.bank
         )} hover:scale-105 transition-all duration-300 hover:shadow-lg hover:shadow-neutral-900/20`}
       >

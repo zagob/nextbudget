@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getUserAuth } from "../users/getUserAuth.actions";
+import { format } from "date-fns";
 
 interface GetExportTransactionsProps {
   date: Date;
@@ -49,14 +50,11 @@ export async function getExportTransactions({ date }: GetExportTransactionsProps
 
     const transactionsFormatted = transactions.map((transaction) => {
       return {
-        id: transaction.id,
-        accountBankId: transaction.accountBankId,
-        categoryId: transaction.categoryId,
+        category: transaction.category.name,
         amount: transaction.amount,
-        date: transaction.date,
+        date: format(transaction.date, "dd/MM/yyyy"),
         description: transaction.description,
         type: transaction.type,
-        category: transaction.category,
         bank: transaction.bank.bank,
       };
     })

@@ -16,6 +16,9 @@ import {
 } from "@/components/ui/popover";
 import { ResumeMonth } from "@/components/Transactions/ResumeMonth";
 
+import { ExportFile } from "@/components/ExportFile";
+import { ImportFile } from "@/components/ImportFile";
+
 export default function TransactionsPage() {
   const selectedDate = useDateOnly();
   const setSelectedDate = useDateStore((state) => state.setDate);
@@ -92,9 +95,8 @@ export default function TransactionsPage() {
           </Button>
         </div>
         <div>
-          <Button variant="outline">
-            Exportar CSV
-          </Button>
+          <ImportFile />
+          <ExportFile />
         </div>
       </div>
 

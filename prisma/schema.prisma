@@ -22,6 +22,8 @@ model User {
   Categories   Categories[]
   Transactions Transactions[]
   Transfers    Transfers[]
+
+  subscription Subscription?
 }
 
 model Account {
@@ -158,4 +160,47 @@ model Transfers {
   deletedAt DateTime?
 
   @@map("transfers")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  UNPAID
+  TRIAL
+}
+
+enum PlanType {
+  FREE
+  PRO
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+model Subscription {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  planType     PlanType           @default(FREE)
+  status       SubscriptionStatus @default(ACTIVE)
+  billingCycle BillingCycle?
+
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  trialStart         DateTime?
+  trialEnd           DateTime?
+
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  stripePriceId        String?
+
+  maxAccountBanks Int @default(10)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

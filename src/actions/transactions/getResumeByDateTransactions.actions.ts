@@ -16,10 +16,43 @@ export async function getResumeByDateTransactions({
     const year = date.getUTCFullYear();
     const month = date.getUTCMonth();
 
+    const firstPreviousDayUTC = new Date(
+      Date.UTC(year, month - 1, 1, 0, 0, 0, 0)
+    );
+    const lastPreviousDayUTC = new Date(
+      Date.UTC(year, month, 0, 23, 59, 59, 999)
+    );
+
     const firstDayUTC = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
     const lastDayUTC = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59, 999));
 
-    const transactions = await prisma.transactions.findMany({
+    const sumByType = (
+      tx: { amount: number; type: string }[],
+      type: "INCOME" | "EXPENSE"
+    ) =>
+      tx.filter((t) => t.type === type).reduce((acc, t) => acc + t.amount, 0);
+
+    const sumBalance = (tx: { amount: number; type: string }[]) =>
+      tx.reduce(
+        (acc, t) => (t.type === "INCOME" ? acc + t.amount : acc - t.amount),
+        0
+      );
+
+    const transactionsPrevMonth = await prisma.transactions.findMany({
+      where: {
+        userId,
+        date: {
+          gte: firstPreviousDayUTC,
+          lte: lastPreviousDayUTC,
+        },
+      },
+      select: {
+        amount: true,
+        type: true,
+      },
+    });
+
+    const transactionsCurrentMonth = await prisma.transactions.findMany({
       where: {
         userId,
         date: {
@@ -33,29 +66,46 @@ export async function getResumeByDateTransactions({
       },
     });
 
-    const totalAmountIncome = transactions
-      .filter((transaction) => transaction.type === "INCOME")
-      .reduce((acc, transaction) => acc + transaction.amount, 0);
+    const calcChange = (current: number, previous: number) => {
+      if (previous === 0) return { change: null, changeType: null };
+      const diff = ((current - previous) / previous) * 100;
+      return {
+        change: `${diff.toFixed(2)}%`,
+        changeType: diff >= 0 ? ("up" as const) : ("down" as const),
+      };
+    };
 
-    const totalAmountExpenses = transactions
-      .filter((transaction) => transaction.type === "EXPENSE")
-      .reduce((acc, transaction) => acc + transaction.amount, 0);
-
-    const totalAmount = transactions.reduce((acc, transaction) => {
-      if (transaction.type === "INCOME") {
-        return acc + transaction.amount;
-      } else {
-        return acc - transaction.amount;
-      }
-    }, 0);
+    const { balance, income, expense } = {
+      balance: {
+        current: sumBalance(transactionsCurrentMonth),
+        previous: sumBalance(transactionsPrevMonth),
+      },
+      income: {
+        current: sumByType(transactionsCurrentMonth, "INCOME"),
+        previous: sumByType(transactionsPrevMonth, "INCOME"),
+      },
+      expense: {
+        current: sumByType(transactionsCurrentMonth, "EXPENSE"),
+        previous: sumByType(transactionsPrevMonth, "EXPENSE"),
+      },
+    };
 
     return {
       success: true,
       message: "Resume by date transactions geted successfully",
       data: {
-        totalAmount,
-        totalAmountIncome,
-        totalAmountExpenses,
+        balance: {
+          ...balance,
+          ...calcChange(balance.current, balance.previous),
+        },
+        income: {
+          ...income,
+          ...calcChange(income.current, income.previous),
+        },
+        expense: {
+          ...expense,
+          ...calcChange(expense.current, expense.previous),
+        },
       },
     };
   } catch (error) {

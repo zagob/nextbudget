@@ -18,33 +18,29 @@ export function DynamicStatsCards() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {/* <StatsCard
-          title="Saldo Total"
-          value="R$ 0,00"
-          change="--"
-          icon={DollarSign}
-          color="bg-gradient-to-br from-green-500 to-green-600"
-        /> */}
       <StatsCard
         title="Receitas (Mês)"
-        value={transformToCurrency(transactions?.data?.totalAmountIncome || 0)}
-        change="--"
+        value={transformToCurrency(transactions?.data?.income.current || 0)}
+        change={transactions?.data?.income.change ?? "0%"}
+        changeType={transactions?.data?.income.changeType}
         icon={TrendingUp}
         color="bg-gradient-to-br from-green-500 to-green-600"
       />
       <StatsCard
         title="Despesas (Mês)"
         value={transformToCurrency(
-          transactions?.data?.totalAmountExpenses || 0
+          transactions?.data?.expense.current || 0
         )}
-        change="--"
+        change={transactions?.data?.expense.change ?? "0%"}
+        changeType={transactions?.data?.expense.changeType}
         icon={TrendingDown}
         color="bg-gradient-to-br from-red-500 to-red-600"
       />
       <StatsCard
         title="Balanço do Mês"
-        value={transformToCurrency(transactions?.data?.totalAmount || 0)}
-        change="--"
+        value={transformToCurrency(transactions?.data?.balance.current || 0)}
+        change={transactions?.data?.balance.change ?? "0%"}
+        changeType={transactions?.data?.balance.changeType}
         icon={DollarSign}
         color="bg-gradient-to-br from-blue-500 to-blue-600"
       />
