@@ -5,7 +5,7 @@ type CategoryType = {
   type: Type;
   name: string;
   color: string;
-  icon: string;
+  icon?: string;
   _count: {
     user: number;
     Transactions: number;

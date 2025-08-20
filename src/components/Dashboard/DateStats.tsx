@@ -13,7 +13,7 @@ export const DateStats = () => {
 
   const { transactions, resume, isPendingTransactions } = useTransactionsData(date);
 
-  const balance = resume?.data?.totalAmount || 0;
+  const balance = resume?.data?.balance.current || 0;
 
   if (isPendingTransactions) {
     return (

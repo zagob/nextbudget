@@ -3,9 +3,19 @@
 import { prisma } from "@/lib/prisma";
 import { getUserAuth } from "../users/getUserAuth.actions";
 import { read, utils } from "xlsx";
+import { Type } from "@prisma/client";
 
 interface GetImportTransactionsProps {
   file: File;
+}
+
+interface RowProps {
+  category: string;
+  amount: number;
+  date: string;
+  description: string;
+  type: Type;
+  bank: string;
 }
 
 export async function getImportTransactions({
@@ -20,14 +30,14 @@ export async function getImportTransactions({
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
 
-    const rows = utils.sheet_to_json(worksheet, { defval: null });
+    const rows: RowProps[] = utils.sheet_to_json(worksheet, { defval: null });
 
     function parseDDMMYYYY(dateStr: string) {
       const [day, month, year] = dateStr.split("/").map(Number);
       return new Date(year, month - 1, day); // mês é zero-based
     }
 
-    const transactions = rows.map((row: any) => {
+    const transactions = rows.map((row) => {
       const date = parseDDMMYYYY(row["date"]);
 
       return {

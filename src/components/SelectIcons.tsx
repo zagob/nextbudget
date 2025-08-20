@@ -165,7 +165,7 @@ export function SelectIcons({
                   position: "relative",
                 }}
               >
-                {virtualizer.getVirtualItems().map((virtualRow: any) => {
+                {virtualizer.getVirtualItems().map((virtualRow) => {
                   const rowIndex = virtualRow.index;
                   const startIndex = rowIndex * COLS;
 

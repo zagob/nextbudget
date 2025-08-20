@@ -6,24 +6,15 @@ import { Button } from "../ui/button";
 
 import { useQuery } from "@tanstack/react-query";
 import { Tag, Filter, Search, TrendingUp, TrendingDown } from "lucide-react";
-import { useDateStore } from "@/store/date";
 import { LoadingCard } from "../LoadingCard";
 import { DialogCreateCategory } from "../DialogCreateCategory";
 import { getCategories } from "@/actions/categories/getCategories.actions";
 import { CategoryItem } from "../CategoryItem";
 
-// Componente de item de categoria moderna
-
 export const Categories = memo(() => {
-  const date = useDateStore((state) => state.date);
-
   const { data: categories, isPending } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => await getCategories({}),
-  });
-
-  console.log({
-    categories,
   });
 
   // Memoizar dados processados

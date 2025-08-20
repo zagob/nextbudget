@@ -34,8 +34,6 @@ import { PreviewItem } from "./PreviewCategory";
 import { Separator } from "./ui/separator";
 import { DialogDeleteCategory } from "./DialogDeleteCategory";
 import { TypeTransactionSelect } from "./TypeTransactionSelect";
-import { SelectIcons } from "./SelectIcons";
-import { SelectIconsExample } from "./SelectIconsExample";
 
 const formSchema = z.object({
   id: z.string(),

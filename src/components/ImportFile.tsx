@@ -44,7 +44,7 @@ export function ImportFile() {
         ".xlsx",
       ],
     },
-    disabled: true,
+    disabled: isPending,
     noDrag: true,
     multiple: false,
   });

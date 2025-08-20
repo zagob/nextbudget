@@ -11,12 +11,10 @@ import {
   Receipt,
   TrendingUp,
   TrendingDown,
-  Eye,
   Calendar,
   Clock,
   Filter,
   Search,
-  Pencil,
 } from "lucide-react";
 import { LoadingCard } from "../LoadingCard";
 import { DialogCreateTransaction } from "../DialogCreateTransaction";
