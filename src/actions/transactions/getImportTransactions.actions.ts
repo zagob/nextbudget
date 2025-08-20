@@ -22,10 +22,6 @@ export async function getImportTransactions({
 
     const rows = utils.sheet_to_json(worksheet, { defval: null });
 
-    console.log({
-      rows,
-    });
-
     function parseDDMMYYYY(dateStr: string) {
       const [day, month, year] = dateStr.split("/").map(Number);
       return new Date(year, month - 1, day); // mês é zero-based
@@ -45,10 +41,6 @@ export async function getImportTransactions({
       };
     });
 
-    console.log({
-      transactions,
-    });
-
     const accountBanks = await prisma.accountBanks.findMany({
       where: { userId },
       select: { id: true, bank: true, amount: true },
@@ -62,7 +54,7 @@ export async function getImportTransactions({
     const operations = [];
 
     for (const tx of transactions) {
-      const accountBank = accountBanks.find((b) => b.name === tx.bank);
+      const accountBank = accountBanks.find((b) => b.bank === tx.bank);
       const category = categories.find((c) => c.name === tx.category);
 
       if (!accountBank) {
@@ -91,7 +83,7 @@ export async function getImportTransactions({
             amount: tx.amount,
             type: tx.type,
             date: tx.date,
-            categoryId: category?.id || "", // 🔹 aqui você pode mapear categoria se já tiver tabela
+            categoryId: category?.id || "",
           },
         })
       );
@@ -99,12 +91,13 @@ export async function getImportTransactions({
       // manter o saldo atualizado localmente para não sobrescrever errado
       accountBank.amount = newAmount;
     }
-    //     await prisma.transactions.createMany({
-    //   data: [{
 
-    //   }],
+    // await prisma.transactions.createMany({
+    //   data: operations,
     //   skipDuplicates: true, // evita duplicados se já existir
     // });
+
+    await prisma.$transaction(operations);
 
     return {
       success: true,

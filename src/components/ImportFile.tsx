@@ -2,12 +2,19 @@
 
 import { getImportTransactions } from "@/actions/transactions/getImportTransactions.actions";
 import { useMutation } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
 
 export function ImportFile() {
   const { mutateAsync, isPending, data } = useMutation({
     mutationFn: async (file: File) => await getImportTransactions({ file }),
+    onSuccess: () => {
+      toast.success("Transações importadas com sucesso", {
+        richColors: true,
+      });
+    },
   });
 
   const onDrop = useCallback(
@@ -29,7 +36,7 @@ export function ImportFile() {
 
   console.log("mut", data);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, fileRejections } = useDropzone({
     onDrop,
     accept: {
       "application/vnd.ms-excel": [".xls"],
@@ -37,6 +44,7 @@ export function ImportFile() {
         ".xlsx",
       ],
     },
+    disabled: true,
     noDrag: true,
     multiple: false,
   });
@@ -44,16 +52,24 @@ export function ImportFile() {
   return (
     <div
       {...getRootProps()}
-      className={`flex flex-col p-8 rounded-2xl items-center justify-center w-full border-2 border-dashed cursor-pointer transition
-        ${isDragActive ? "border-green-400 bg-green-50" : ""}
-      `}
+      // className={`flex flex-col p-8 rounded-2xl items-center justify-center w-full border-2 border-dashed cursor-pointer transition
+      //   ${isDragActive ? "border-green-400 bg-green-50" : ""}
+      // `}
     >
       <input {...getInputProps()} />
-      {isDragActive ? (
+      <Button disabled={isPending} variant="outline">
+        {isPending ? "Importando..." : "Importar transações"}
+      </Button>
+      {fileRejections.length > 0 && (
+        <p className="text-red-600 text-xs font-medium">
+          Formato de arquivo inválido
+        </p>
+      )}
+      {/* {isDragActive ? (
         <p className="text-green-600 font-medium">Solte o arquivo aqui...</p>
       ) : (
         <p className="text-neutral-300">Importar transações</p>
-      )}
+      )} */}
     </div>
   );
 }

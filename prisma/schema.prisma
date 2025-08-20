@@ -145,9 +145,10 @@ model Transactions {
 }
 
 model Transfers {
-  id     String   @id @default(cuid())
-  date   DateTime
-  amount Int
+  id          String   @id @default(cuid())
+  date        DateTime
+  amount      Int
+  description String?
 
   sourceBankId      String
   sourceBank        AccountBanks @relation(name: "SourceBank", fields: [sourceBankId], references: [id])

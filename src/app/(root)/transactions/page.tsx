@@ -51,7 +51,6 @@ export default function TransactionsPage() {
                   <Filter className="w-4 h-4 mr-2" />
                   Filtros
                 </div>
-                {/* <div className="bg-blue-600 ml-4 rounded-full size-2" /> */}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-4" align="end">
@@ -60,6 +59,7 @@ export default function TransactionsPage() {
           </Popover>
           <DialogCreateTransaction />
         </div>
+
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -69,7 +69,6 @@ export default function TransactionsPage() {
             onDateChange={setSelectedDate}
           />
         </div>
-        {/* <TransactionStats selectedDate={selectedDate} /> */}
       </div>
 
       {/* View Toggle */}
@@ -94,7 +93,7 @@ export default function TransactionsPage() {
             Gráfico
           </Button>
         </div>
-        <div>
+        <div className="flex items-center gap-2">
           <ImportFile />
           <ExportFile />
         </div>
